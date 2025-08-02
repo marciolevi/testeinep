@@ -1524,24 +1524,54 @@ function setupAuthentication() {
     // --- Gerenciador de Sessão (O MAIS IMPORTANTE) ---
     // Ouve as mudanças de login e logout para mostrar a tela certa.
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            // Se o usuário está LOGADO:
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            const userName = userDoc.exists() ? userDoc.data().name : (user.displayName || "Usuário");
-            
-            userNameDisplay.textContent = userName;
-            userAvatarDisplay.textContent = userName.charAt(0).toUpperCase();
-            
-            // Esconde a tela de login e mostra o cronograma
-            loginOverlay.classList.add('hidden');
-        } else {
-            // Se o usuário está DESLOGADO:
-            // Mostra a tela de login
-            loginOverlay.classList.remove('hidden');
-        }
-    });
-}
+    if (user) {
+        // Se o usuário está LOGADO:
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userName = userDoc.exists() ? userDoc.data().name : (user.displayName || "Usuário");
+        
+        userNameDisplay.textContent = userName;
+        userAvatarDisplay.textContent = userName.charAt(0).toUpperCase();
+        
+        // Esconde a tela de login e mostra o cronograma
+        loginOverlay.classList.add('hidden');
+        
+        // INICIA O APP PRINCIPAL
+        initializeAppAfterLogin();
+    } else {
+        // Se o usuário está DESLOGADO:
+        // Mostra a tela de login
+        loginOverlay.classList.remove('hidden');
+        
+        // Limpa qualquer estado residual
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+    }
+});
 
+function initializeAppAfterLogin() {
+    // Garante que todas as seções estão configuradas
+    if (appState.darkMode) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.querySelector('#theme-toggle i').className = 'fas fa-sun';
+    }
+    
+    // Inicializa os dados do app
+    prepareAllTopics();
+    regenerateAndRenderSchedule();
+    resetPomodoro();
+    startTotalStudyTimer();
+    medicalChatbot.init();
+    updateHeaderUI();
+    checkAllAchievements({ type: 'load' });
+    renderAchievementsPage();
+    showSection('stats');
+    
+    // Garante que o app principal está visível
+    document.getElementById('header').style.display = 'flex';
+    document.getElementById('sidebar').style.display = 'block';
+    document.getElementById('main-content').style.display = 'block';
+}
 // FUNÇÕES DE LÓGICA DO CRONOGRAMA
 // ---------------------------------------------------------------------------------
 function prepareAllTopics() { appState.allTopicsFlat = [...originalScheduleData, ...appState.customThemes]; }
