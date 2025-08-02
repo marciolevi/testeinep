@@ -1522,7 +1522,6 @@ function setupAuthentication() {
     });
 
     // --- Gerenciador de Sessão (O MAIS IMPORTANTE) ---
-    // Ouve as mudanças de login e logout para mostrar a tela certa.
     onAuthStateChanged(auth, async (user) => {
     if (user) {
         // Se o usuário está LOGADO:
@@ -1549,29 +1548,6 @@ function setupAuthentication() {
     }
 });
 
-function initializeAppAfterLogin() {
-    // Garante que todas as seções estão configuradas
-    if (appState.darkMode) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        document.querySelector('#theme-toggle i').className = 'fas fa-sun';
-    }
-    
-    // Inicializa os dados do app
-    prepareAllTopics();
-    regenerateAndRenderSchedule();
-    resetPomodoro();
-    startTotalStudyTimer();
-    medicalChatbot.init();
-    updateHeaderUI();
-    checkAllAchievements({ type: 'load' });
-    renderAchievementsPage();
-    showSection('stats');
-    
-    // Garante que o app principal está visível
-    document.getElementById('header').style.display = 'flex';
-    document.getElementById('sidebar').style.display = 'block';
-    document.getElementById('main-content').style.display = 'block';
-}
 // FUNÇÕES DE LÓGICA DO CRONOGRAMA
 // ---------------------------------------------------------------------------------
 function prepareAllTopics() { appState.allTopicsFlat = [...originalScheduleData, ...appState.customThemes]; }
