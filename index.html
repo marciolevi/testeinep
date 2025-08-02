@@ -1600,10 +1600,45 @@ function hideModal(modalId) { document.getElementById(modalId).classList.remove(
 function showSection(sectionId) { document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active')); const section = document.getElementById(`${sectionId}-section`); if (section) { section.classList.add('active'); appState.currentSection = sectionId; if (sectionId === 'stats') { updateAllStatsAndCharts(); saveSessionTime(); updateStudyTimeDisplay(); } else if (sectionId === 'achievements') { renderAchievementsPage(); } else if (sectionId === 'performance') { updateStats(); populatePerformanceTopicSelect(); renderPerformanceHistory(); } else if (sectionId === 'progress') { updateProgressLists(); } else if (sectionId === 'review') { updateFutureReviews(); } } window.scrollTo(0, 0); }
 function updateAllStatsAndCharts() { updateStats(); updateStatusIcons(); if (appState.currentSection === 'stats') { createCompletionChart(); createPerformanceByAreaChart(); } }
 
-// INICIALIZAÇÃO
-// ---------------------------------------------------------------------------------
-document.addEventListener('DOMContentLoaded', function () {
-    setupAuthentication(); // INICIA A LÓGICA DE AUTENTICAÇÃO
+// =======================================================
+// NOVA FUNÇÃO DE AUTENTICAÇÃO (Onde você encontrou o problema)
+// =======================================================
+function setupAuthentication() {
+    // ... (seu código de autenticação existente)
+
+    // --- Gerenciador de Sessão (O MAIS IMPORTANTE) ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Se o usuário está LOGADO:
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            const userName = userDoc.exists() ? userDoc.data().name : (user.displayName || "Usuário");
+            
+            userNameDisplay.textContent = userName;
+            userAvatarDisplay.textContent = userName.charAt(0).toUpperCase();
+            
+            // Esconde a tela de login e mostra o cronograma
+            loginOverlay.classList.add('hidden');
+            
+            // INICIA O APP PRINCIPAL
+            initializeAppAfterLogin(); // AGORA ESTA FUNÇÃO EXISTE!
+        } else {
+            // Se o usuário está DESLOGADO:
+            // Mostra a tela de login
+            loginOverlay.classList.remove('hidden');
+            
+            // Limpa qualquer estado residual
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+        }
+    });
+} // Fim da função setupAuthentication
+
+
+// ========================================================
+// CRIE A NOVA FUNÇÃO DE INICIALIZAÇÃO AQUI
+// ========================================================
+function initializeAppAfterLogin() {
     if (appState.darkMode) {
         document.documentElement.setAttribute('data-theme', 'dark');
         document.querySelector('#theme-toggle i').className = 'fas fa-sun';
@@ -1623,8 +1658,14 @@ document.addEventListener('DOMContentLoaded', function () {
     checkAllAchievements({ type: 'load' });
     renderAchievementsPage();
     showSection('stats');
-});
+}
 
+
+// INICIALIZAÇÃO PRINCIPAL (AGORA MAIS LIMPA)
+// ---------------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+    setupAuthentication(); // Apenas inicia a verificação de login. O resto acontece depois.
+});
 function initializeEventListeners() {
     document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
     document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
