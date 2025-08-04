@@ -7,44 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root{--primary-color:#4CAF50;--secondary-color:#FFC107;--accent-color:#2196F3;--background-color:#f8f9fa;--card-background:#fff;--text-color:#333;--border-color:#e0e0e0;--shadow-color:rgba(0,0,0,.1);--success-color:#4CAF50;--warning-color:#FFC107;--danger-color:#F44336;--info-color:#2196F3;--xp-color:#9C27B0;--sidebar-width:280px;--sidebar-collapsed-width:70px}
         [data-theme=dark]{--primary-color:#66BB6A;--secondary-color:#FFD54F;--accent-color:#64B5F6;--background-color:#1a1a1a;--card-background:#2d2d2d;--text-color:#f5f5f5;--border-color:#404040;--shadow-color:rgba(0,0,0,.3);--xp-color:#BA68C8}
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:'Roboto',sans-serif;background-color:var(--background-color);color:var(--text-color);transition:all .3s ease;overflow-x:hidden}
-        
-        /* --- ESTILOS DA TELA DE LOGIN --- */
-        .login-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--primary-color),var(--accent-color));z-index:10000;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease,visibility .5s ease;opacity:1;visibility:visible}
-        .login-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
-        .login-container{background:var(--card-background);border-radius:20px;box-shadow:0 20px 60px var(--shadow-color);padding:40px;width:90%;max-width:450px;text-align:center;animation:loginSlideIn .5s ease}
-        @keyframes loginSlideIn{0%{transform:translateY(-50px);opacity:0}100%{transform:translateY(0);opacity:1}}
-        .login-header{margin-bottom:30px}
-        .login-header h1{color:var(--primary-color);font-size:2rem;margin-bottom:10px}
-        .login-header p{color:var(--text-color);opacity:.8;font-size:1.1rem}
-        .login-tabs{display:flex;margin-bottom:30px;border-radius:12px;background:var(--background-color);padding:4px}
-        .login-tab{flex:1;padding:12px;border:none;background:transparent;color:var(--text-color);cursor:pointer;border-radius:8px;transition:all .3s ease;font-weight:500}
-        .login-tab.active{background:var(--card-background);color:var(--primary-color);box-shadow:0 2px 8px var(--shadow-color)}
-        .login-form{display:none}
-        .login-form.active{display:block}
-        .form-group{margin-bottom:20px;text-align:left}
-        .form-group label{display:block;margin-bottom:8px;font-weight:500;color:var(--text-color)}
-        .form-input{width:100%;padding:15px;border:2px solid var(--border-color);border-radius:12px;font-size:1rem;background:var(--background-color);color:var(--text-color);transition:border-color .3s ease}
-        .form-input:focus{outline:none;border-color:var(--primary-color)}
-        .login-btn{width:100%;padding:15px;border:none;border-radius:12px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all .3s ease;margin-bottom:15px}
-        .btn-primary{background:var(--primary-color);color:#fff}
-        .btn-primary:hover{background:#45a049;transform:translateY(-2px)}
-        .btn-google{background:#4285f4;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px}
-        .btn-google:hover{background:#357ae8;transform:translateY(-2px)}
-        .login-divider{margin:25px 0;position:relative;text-align:center;color:var(--text-color);opacity:.6}
-        .login-divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border-color)}
-        .login-divider span{background:var(--card-background);padding:0 15px}
-        .login-error{background:#ffebee;color:#c62828;padding:12px;border-radius:8px;margin-bottom:20px;display:none}
-        [data-theme=dark] .login-error{background:#4d1f1f;color:#ff6b6b}
-        .login-loading{display:none;margin:20px 0}
-        .loading-spinner{width:40px;height:40px;border:4px solid var(--border-color);border-top:4px solid var(--primary-color);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
-        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-
-        /* --- RESTANTE DOS ESTILOS (gamer.html) --- */
         .header-fixed{position:fixed;top:0;left:0;right:0;background-color:var(--card-background);box-shadow:0 2px 10px var(--shadow-color);z-index:1000;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;transition:all .3s ease;min-height:80px}
         .header-fixed.sidebar-open{left:var(--sidebar-width)}
         .header-fixed.sidebar-collapsed{left:var(--sidebar-collapsed-width)}
@@ -52,20 +21,26 @@
         .header-center{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;margin:0 15px}
         .header-right{display:flex;align-items:center;gap:15px}
         .header-title{font-size:1.5em;font-weight:700;color:var(--primary-color)}
-        .user-info{display:flex;align-items:center;gap:10px;font-size:.9rem}
-        .user-avatar{width:30px;height:30px;border-radius:50%;background:var(--xp-color);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
-        .logout-btn{background:var(--danger-color);color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;transition:all .3s ease}
-        .logout-btn:hover{background:#d32f2f;transform:translateY(-1px)}
+        .motivational-quote{font-size:.9em;font-style:italic;color:var(--accent-color)}
         .user-profile-header{display:flex;align-items:center;gap:15px}
         .xp-bar-container{width:150px;height:12px;background-color:var(--border-color);border-radius:6px;overflow:hidden;position:relative}
         .xp-bar-fill{width:0%;height:100%;background-color:var(--xp-color);transition:width .5s ease}
+        .user-level{font-size:.9em;font-weight:500;color:var(--xp-color)}
         .study-streak{font-size:1.2em;color:#FF9800;font-weight:700;display:flex;align-items:center;gap:5px}
         .btn{background-color:var(--accent-color);color:#fff;border:none;padding:10px 15px;border-radius:8px;cursor:pointer;font-size:.9em;transition:all .3s ease;display:flex;align-items:center;gap:5px}
         .btn:hover{background-color:#1976D2;transform:translateY(-2px)}
         .btn-toggle{background-color:var(--secondary-color);color:#333}
         .btn-toggle:hover{background-color:#F57F17}
         .btn-danger{background-color:var(--danger-color);font-size:.8em;padding:4px 8px}
-        .btn-ia{padding:5px 10px;font-size:.75em;background-color:var(--xp-color);color:white;border:none;border-radius:6px;cursor:pointer}
+        .btn-ia {
+          padding: 5px 10px;
+          font-size: 0.75em;
+          background-color: var(--xp-color);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+        }
         .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background-color:var(--card-background);box-shadow:2px 0 10px var(--shadow-color);transform:translateX(-100%);transition:transform .3s ease;z-index:999;overflow-y:auto;padding:80px 0 20px}
         .sidebar.open{transform:translateX(0)}
         .sidebar.collapsed{width:var(--sidebar-collapsed-width);transform:translateX(0)}
@@ -175,6 +150,248 @@
         .fade-in{animation:fadeIn .5s ease}@keyframes fadeIn{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
         .pulse{animation:pulse 2s infinite}@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
         ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:var(--background-color)}::-webkit-scrollbar-thumb{background:var(--primary-color);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:#388E3C}
+        
+        /* Login Screen Styles */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .login-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .login-card {
+            background: var(--card-background);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            animation: slideUp 0.6s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .login-logo {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .login-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-bottom: 30px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1em;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-color);
+            opacity: 0.5;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, var(--primary-color), #66BB6A);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .google-btn {
+            background: white;
+            color: #333;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .google-btn:hover {
+            background: #f8f9fa;
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--text-color);
+            opacity: 0.5;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        
+        .divider span {
+            padding: 0 15px;
+            font-size: 0.9em;
+        }
+        
+        .auth-toggle {
+            margin-top: 20px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        
+        .auth-toggle a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        /* User info in header */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
         .review-group{background-color:var(--card-background);padding:15px;border-radius:8px;margin-bottom:15px;box-shadow:0 2px 10px var(--shadow-color)}
         .review-group h4{color:var(--primary-color);margin-bottom:10px;display:flex;align-items:center;gap:8px}
         .review-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid var(--border-color)}
@@ -184,97 +401,474 @@
         .review-due{font-weight:700}
         .review-due.urgent{color:var(--danger-color)}
         .review-due.soon{color:var(--warning-color)}
-        .medical-chatbot{position:fixed;bottom:20px;right:20px;z-index:1500;font-family:'Roboto',sans-serif}
-        .chatbot-toggle{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--xp-color),#8E24AA);border:none;color:white;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(156,39,176,.3);transition:all .3s ease;display:flex;align-items:center;justify-content:center}
-        .chatbot-toggle:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(156,39,176,.5)}
-        .chatbot-toggle.active{background:linear-gradient(135deg,#FF5722,#F44336)}
-        .chatbot-container{position:absolute;bottom:80px;right:0;width:400px;height:600px;background:var(--card-background);border-radius:20px;box-shadow:0 20px 60px var(--shadow-color);display:none;flex-direction:column;overflow:hidden;border:2px solid var(--border-color)}
-        .chatbot-container.active{display:flex}
-        .chatbot-header{background:linear-gradient(135deg,var(--xp-color),#8E24AA);color:white;padding:20px;text-align:center;position:relative}
-        .chatbot-header h3{margin:0;font-size:1.2rem;font-weight:600}
-        .chatbot-header p{margin:5px 0 0;font-size:.9rem;opacity:.9}
-        .chatbot-close{position:absolute;top:15px;right:15px;background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;opacity:.8}
-        .chatbot-close:hover{opacity:1}
-        .chat-messages{flex:1;padding:20px;overflow-y:auto;background:var(--background-color)}
-        .message{margin-bottom:15px;max-width:85%}
-        .message.user{margin-left:auto;text-align:right}
-        .message.bot{margin-right:auto}
-        .message-bubble{padding:12px 16px;border-radius:18px;font-size:.9rem;line-height:1.4;word-wrap:break-word}
-        .message.user .message-bubble{background:var(--xp-color);color:white;border-bottom-right-radius:5px}
-        .message.bot .message-bubble{background:var(--card-background);color:var(--text-color);border:1px solid var(--border-color);border-bottom-left-radius:5px}
-        .message-time{font-size:.7rem;opacity:.7;margin-top:5px}
-        .typing-indicator{display:none;align-items:center;gap:8px;padding:12px 16px;background:var(--card-background);border:1px solid var(--border-color);border-radius:18px;border-bottom-left-radius:5px;margin-bottom:15px;max-width:85%}
-        .typing-indicator.active{display:flex}
-        .typing-dots{display:flex;gap:4px}
-        .typing-dot{width:8px;height:8px;background:var(--xp-color);border-radius:50%;animation:typingAnimation 1.4s infinite ease-in-out}
-        .typing-dot:nth-child(1){animation-delay:-.32s}
-        .typing-dot:nth-child(2){animation-delay:-.16s}
-        @keyframes typingAnimation{0%,80%,100%{transform:scale(0);opacity:.5}40%{transform:scale(1);opacity:1}}
-        .chat-input-container{padding:20px;border-top:2px solid var(--border-color);background:var(--card-background)}
-        .chat-input-wrapper{display:flex;gap:10px;align-items:flex-end}
-        .chat-input{flex:1;padding:12px 16px;border:2px solid var(--border-color);border-radius:25px;background:var(--background-color);color:var(--text-color);font-size:.9rem;resize:none;max-height:100px;min-height:44px;outline:none;transition:border-color .3s ease}
-        .chat-input:focus{border-color:var(--xp-color)}
-        .chat-send{width:44px;height:44px;border-radius:50%;background:var(--xp-color);border:none;color:white;font-size:1.1rem;cursor:pointer;transition:all .3s ease;display:flex;align-items:center;justify-content:center}
-        .chat-send:hover:not(:disabled){background:#8E24AA;transform:scale(1.05)}
-        .chat-send:disabled{opacity:.5;cursor:not-allowed}
-        .quick-topics{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px}
-        .quick-topic{padding:6px 12px;background:var(--card-background);border:1px solid var(--border-color);border-radius:15px;font-size:.8rem;cursor:pointer;transition:all .3s ease;color:var(--text-color)}
-        .quick-topic:hover{background:var(--xp-color);color:white;border-color:var(--xp-color)}
-        @media (max-width:768px){.chatbot-container{width:100vw;height:100vh;bottom:0;right:0;border-radius:0;position:fixed}.medical-chatbot{bottom:10px;right:10px}.chatbot-toggle{width:50px;height:50px;font-size:1.3rem}}
-        .level-container{display:flex;align-items:center;gap:10px;margin-bottom:5px}
-        .level-avatar{font-size:1.8em;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--xp-color);border-radius:50%;color:white}
-        .level-info{font-size:.8em;color:var(--text-color);opacity:.8;margin-top:3px}
-        .level-badge{background:linear-gradient(135deg,var(--xp-color),#8E24AA);color:white;padding:3px 8px;border-radius:12px;font-size:.7em;font-weight:700;display:inline-block;margin-left:5px}
+        .shimmer {
+          background: linear-gradient(to right, #e0e0e0 8%, #f0f0f0 18%, #e0e0e0 33%);
+          background-size: 1000px 100%;
+          animation: shimmer 1.2s infinite linear forwards;
+          height: 1.2em;
+          border-radius: 4px;
+          margin-bottom: 10px;
+        }
+
+        @keyframes shimmer {
+          0% { background-position: -1000px 0; }
+          100% { background-position: 1000px 0; }
+        }
+
+        /* ESTILOS DO CHATBOT MÉDICO */
+        .medical-chatbot {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          z-index: 1500;
+          font-family: 'Roboto', sans-serif;
+        }
+
+        .chatbot-toggle {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--xp-color), #8E24AA);
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          cursor: pointer;
+          box-shadow: 0 4px 20px rgba(156, 39, 176, 0.3);
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .chatbot-toggle:hover {
+          transform: scale(1.1);
+          box-shadow: 0 6px 25px rgba(156, 39, 176, 0.5);
+        }
+
+        .chatbot-toggle.active {
+          background: linear-gradient(135deg, #FF5722, #F44336);
+        }
+
+        .chatbot-container {
+          position: absolute;
+          bottom: 80px;
+          right: 0;
+          width: 400px;
+          height: 600px;
+          background: var(--card-background);
+          border-radius: 20px;
+          box-shadow: 0 20px 60px var(--shadow-color);
+          display: none;
+          flex-direction: column;
+          overflow: hidden;
+          border: 2px solid var(--border-color);
+        }
+
+        .chatbot-container.active {
+          display: flex;
+        }
+
+        .chatbot-header {
+          background: linear-gradient(135deg, var(--xp-color), #8E24AA);
+          color: white;
+          padding: 20px;
+          text-align: center;
+          position: relative;
+        }
+
+        .chatbot-header h3 {
+          margin: 0;
+          font-size: 1.2rem;
+          font-weight: 600;
+        }
+
+        .chatbot-header p {
+          margin: 5px 0 0 0;
+          font-size: 0.9rem;
+          opacity: 0.9;
+        }
+
+        .chatbot-close {
+          position: absolute;
+          top: 15px;
+          right: 15px;
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.2rem;
+          cursor: pointer;
+          opacity: 0.8;
+        }
+
+        .chatbot-close:hover {
+          opacity: 1;
+        }
+
+        .chat-messages {
+          flex: 1;
+          padding: 20px;
+          overflow-y: auto;
+          background: var(--background-color);
+        }
+
+        .message {
+          margin-bottom: 15px;
+          max-width: 85%;
+        }
+
+        .message.user {
+          margin-left: auto;
+          text-align: right;
+        }
+
+        .message.bot {
+          margin-right: auto;
+        }
+
+        .message-bubble {
+          padding: 12px 16px;
+          border-radius: 18px;
+          font-size: 0.9rem;
+          line-height: 1.4;
+          word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+          background: var(--xp-color);
+          color: white;
+          border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-bubble {
+          background: var(--card-background);
+          color: var(--text-color);
+          border: 1px solid var(--border-color);
+          border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+          font-size: 0.7rem;
+          opacity: 0.7;
+          margin-top: 5px;
+        }
+
+        .typing-indicator {
+          display: none;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: var(--card-background);
+          border: 1px solid var(--border-color);
+          border-radius: 18px;
+          border-bottom-left-radius: 5px;
+          margin-bottom: 15px;
+          max-width: 85%;
+        }
+
+        .typing-indicator.active {
+          display: flex;
+        }
+
+        .typing-dots {
+          display: flex;
+          gap: 4px;
+        }
+
+        .typing-dot {
+          width: 8px;
+          height: 8px;
+          background: var(--xp-color);
+          border-radius: 50%;
+          animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingAnimation {
+          0%, 80%, 100% {
+            transform: scale(0);
+            opacity: 0.5;
+          }
+          40% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        .chat-input-container {
+          padding: 20px;
+          border-top: 2px solid var(--border-color);
+          background: var(--card-background);
+        }
+
+        .chat-input-wrapper {
+          display: flex;
+          gap: 10px;
+          align-items: flex-end;
+        }
+
+        .chat-input {
+          flex: 1;
+          padding: 12px 16px;
+          border: 2px solid var(--border-color);
+          border-radius: 25px;
+          background: var(--background-color);
+          color: var(--text-color);
+          font-size: 0.9rem;
+          resize: none;
+          max-height: 100px;
+          min-height: 44px;
+          outline: none;
+          transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+          border-color: var(--xp-color);
+        }
+
+        .chat-send {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: var(--xp-color);
+          border: none;
+          color: white;
+          font-size: 1.1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .chat-send:hover:not(:disabled) {
+          background: #8E24AA;
+          transform: scale(1.05);
+        }
+
+        .chat-send:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .quick-topics {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 15px;
+        }
+
+        .quick-topic {
+          padding: 6px 12px;
+          background: var(--card-background);
+          border: 1px solid var(--border-color);
+          border-radius: 15px;
+          font-size: 0.8rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          color: var(--text-color);
+        }
+
+        .quick-topic:hover {
+          background: var(--xp-color);
+          color: white;
+          border-color: var(--xp-color);
+        }
+
+        .error-message {
+          background: #FFEBEE;
+          color: #C62828;
+          padding: 12px 16px;
+          border-radius: 18px;
+          border-bottom-left-radius: 5px;
+          font-size: 0.9rem;
+          margin-bottom: 15px;
+          max-width: 85%;
+        }
+
+        [data-theme=dark] .error-message {
+          background: #4D1F1F;
+          color: #FF6B6B;
+        }
+
+        @media (max-width: 768px) {
+          .chatbot-container {
+            width: 100vw;
+            height: 100vh;
+            bottom: 0;
+            right: 0;
+            border-radius: 0;
+            position: fixed;
+          }
+          
+          .medical-chatbot {
+            bottom: 10px;
+            right: 10px;
+          }
+          
+          .chatbot-toggle {
+            width: 50px;
+            height: 50px;
+            font-size: 1.3rem;
+          }
+        }
+
+     /* NOVOS ESTILOS PARA GAMIFICAÇÃO */
+.level-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.level-avatar {
+    font-size: 1.8em;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--xp-color);
+    border-radius: 50%;
+    color: white;
+}
+
+.level-progress {
+    flex-grow: 1;
+}
+
+.level-info {
+    font-size: 0.8em;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 3px;
+}
+
+.level-badge {
+    background: linear-gradient(135deg, var(--xp-color), #8E24AA);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: bold;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.level-up-animation {
+    animation: levelUp 0.5s ease;
+    transform: scale(1.1);
+}
+
+@keyframes levelUp {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1.1); }
+}
+
+.level-up-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card-background);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    max-width: 300px;
+    width: 90%;
+}
+
+.level-up-notification.show {
+    opacity: 1;
+}
+
+.level-up-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
     </style>
 </head>
 <body>
-    <div class="login-overlay" id="login-overlay">
-        <div class="login-container">
-            <div class="login-header"><h1>🩺 Revalida 2025</h1><p>Sua plataforma de estudos médicos</p></div>
-            <div class="login-tabs">
-                <button class="login-tab active" id="login-tab">Entrar</button>
-                <button class="login-tab" id="register-tab">Cadastrar</button>
+    <!-- Login Screen -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">📅</div>
+            <h1 class="login-title">Cronograma Revalida</h1>
+            <p class="login-subtitle">Faça login para sincronizar seu progresso</p>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form class="login-form" id="authForm">
+                <div class="form-group">
+                    <input type="email" class="form-input" id="email" placeholder="Seu e-mail" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-input" id="password" placeholder="Sua senha" required>
+                </div>
+                <button type="submit" class="login-btn" id="authSubmitBtn">
+                    <span id="authBtnText">Entrar</span>
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                </button>
+            </form>
+            
+            <div class="divider">
+                <span>ou</span>
             </div>
-            <div class="login-error" id="login-error"></div>
-            <form class="login-form active" id="login-form">
-                <div class="form-group"><label for="login-email">E-mail:</label><input type="email" id="login-email" class="form-input" placeholder="seu@email.com" required></div>
-                <div class="form-group"><label for="login-password">Senha:</label><input type="password" id="login-password" class="form-input" placeholder="Sua senha" required></div>
-                <button type="submit" class="login-btn btn-primary"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-            </form>
-            <form class="login-form" id="register-form">
-                <div class="form-group"><label for="register-name">Nome:</label><input type="text" id="register-name" class="form-input" placeholder="Seu nome completo" required></div>
-                <div class="form-group"><label for="register-email">E-mail:</label><input type="email" id="register-email" class="form-input" placeholder="seu@email.com" required></div>
-                <div class="form-group"><label for="register-password">Senha:</label><input type="password" id="register-password" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6"></div>
-                <div class="form-group"><label for="register-confirm-password">Confirmar Senha:</label><input type="password" id="register-confirm-password" class="form-input" placeholder="Repita sua senha" required></div>
-                <button type="submit" class="login-btn btn-primary"><i class="fas fa-user-plus"></i> Criar Conta</button>
-            </form>
-            <div class="login-divider"><span>ou</span></div>
-            <button class="login-btn btn-google" id="google-login"><i class="fab fa-google"></i> Continuar com Google</button>
-            <div class="login-loading" id="login-loading"><div class="loading-spinner"></div><p>Aguarde...</p></div>
+            
+            <button class="login-btn google-btn" id="googleLoginBtn">
+                <i class="fab fa-google"></i>
+                Continuar com Google
+            </button>
+            
+            <div class="auth-toggle">
+                <span id="authToggleText">Não tem uma conta?</span>
+                <a id="authToggleLink">Criar conta</a>
+            </div>
         </div>
     </div>
 
+    <!-- Main App -->
+    <div id="mainApp" style="display: none;">
     <header class="header-fixed" id="header">
         <div class="header-left">
             <button class="btn" id="menu-toggle"><i class="fas fa-bars"></i></button>
             <div class="header-title">Revalida 2025</div>
         </div>
-        <div class="header-center">
-             <div class="user-profile-header">
+         <div class="header-right">
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span id="userEmail"></span>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+            
+            <div class="user-profile-header">>
                 <div id="study-streak" class="study-streak" title="Dias de estudo consecutivos"><i class="fas fa-fire"></i> <span id="streak-count">0</span></div>
                 <div class="user-level" id="user-level"></div>
                 <div class="xp-bar-container" title="Pontos de Experiência"><div id="xp-bar-fill" class="xp-bar-fill"></div></div>
             </div>
         </div>
         <div class="header-right">
-             <div class="user-info">
-                <div id="user-avatar" class="user-avatar">U</div>
-                <span id="user-name">Usuário</span>
-            </div>
-            <button class="btn btn-toggle" id="theme-toggle" title="Alternar Modo Escuro/Claro"><i class="fas fa-moon"></i></button>
-            <button class="btn" id="minimalist-toggle" title="Modo Minimalista"><i class="fas fa-compress"></i></button>
-            <button class="btn logout-btn" id="logout-btn" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
+    <div id="study-time-display" title="Tempo total de estudo" style="font-weight: 600; color: var(--accent-color);">
+        ⏱️ 00:00:00
+    </div>
+    <button class="btn btn-toggle" id="theme-toggle" title="Alternar Modo Escuro/Claro">
+        <i class="fas fa-moon"></i>
+    </button>
+    <button class="btn" id="minimalist-toggle" title="Modo Minimalista">
+        <i class="fas fa-compress"></i>
+    </button>
+</div>
     </header>
 
     <nav class="sidebar" id="sidebar">
@@ -282,7 +876,7 @@
             <ul class="sidebar-menu">
                 <li><a href="#" data-section="stats"><i class="fas fa-chart-bar"></i><span>Estatísticas</span></a></li>
                 <li><a href="#" data-section="achievements"><i class="fas fa-trophy"></i><span>Conquistas</span></a></li>
-                <li><a href="#" data-section="performance"><i class="fas fa-chart-line"></i><span>Desempenho</span></a></li>
+                <li><a href="#" data-section="performance"><i class="fas fa-chart-line"></i><span>Desempenho por Questões</span></a></li>
                 <li><a href="#" data-section="progress"><i class="fas fa-tasks"></i><span>Progresso</span></a></li>
                 <li><a href="#" data-section="pomodoro"><i class="fas fa-clock"></i><span>Pomodoro</span></a></li>
                 <li><a href="#" data-section="review"><i class="fas fa-brain"></i><span>Revisão</span></a></li>
@@ -292,7 +886,7 @@
             </ul>
         </div>
     </nav>
-    
+
     <main class="main-content" id="main-content">
         <section id="stats-section" class="content-section active">
             <div class="stats-grid fade-in">
@@ -303,8 +897,11 @@
             </div>
             <div class="chart-container fade-in"><h3><i class="fas fa-tasks"></i> Conclusão por Matéria (%)</h3><canvas id="graficoPorMateria"></canvas></div>
             <div class="chart-container fade-in"><h3><i class="fas fa-chart-line"></i> Desempenho Médio por Área (%)</h3><canvas id="graficoDesempenhoPorArea"></canvas></div>
+<div class="stat-card">
         </section>
+
         <section id="achievements-section" class="content-section"><h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-trophy"></i> Suas Conquistas</h2><div class="achievements-grid" id="achievements-grid"></div></section>
+        
         <section id="performance-section" class="content-section">
             <div class="controls-section fade-in"><h2><i class="fas fa-chart-line"></i> Registro de Desempenho</h2><p>Anote aqui seus resultados em simulados e listas de exercícios.</p>
                 <div class="config-form" style="align-items: flex-end;">
@@ -314,9 +911,18 @@
                     <div class="config-group"><label for="perf-questions-correct">Acertos:</label><input type="number" id="perf-questions-correct" class="config-input" min="0" placeholder="Ex: 42"></div>
                     <button class="btn" id="save-performance-entry" style="padding: 12px 20px;"><i class="fas fa-save"></i> Salvar</button>
                 </div>
-            </div>
+    <div style="display: flex; align-items: center; gap: 15px; margin-top: 20px;">
+        <a href="https://app.hardworq.com.br/signin" target="_blank" class="btn" style="background-color: #6a1b9a; padding: 12px 20px;">
+            <i class="fas fa-database"></i> HardWorq
+        </a>
+        <span style="font-size: 0.9em; color: var(--text-color);">
+            Utilize o banco de questões gratuitas do HardWorq
+        </span>
+    </div>
+</div>
             <div class="controls-section fade-in" style="margin-top: 20px;"><h3><i class="fas fa-history"></i> Histórico de Registros</h3><div id="performance-history-container" style="overflow-x: auto;"></div></div>
         </section>
+        
         <section id="progress-section" class="content-section"><h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-tasks"></i> Progresso por Matéria</h2><div id="progress-lists"></div></section>
         <section id="pomodoro-section" class="content-section"><div class="pomodoro-section fade-in"><h3><i class="fas fa-clock"></i> Timer Pomodoro</h3><div class="pomodoro-display" id="pomodoro-display">25:00</div><div class="pomodoro-controls"><button class="btn" id="pomodoro-start"><i class="fas fa-play"></i> Iniciar</button><button class="btn" id="pomodoro-pause"><i class="fas fa-pause"></i> Pausar</button><button class="btn" id="pomodoro-reset"><i class="fas fa-stop"></i> Resetar</button></div><div class="pomodoro-settings"><div><label>Foco (min):</label><input type="number" id="focus-time" value="25" min="1" max="60"></div><div><label>Pausa (min):</label><input type="number" id="break-time" value="5" min="1" max="30"></div></div></div></section>
         <section id="review-section" class="content-section"><div class="controls-section fade-in"><h3><i class="fas fa-brain"></i> Revisões Futuras</h3><div id="future-reviews-container"></div></div></section>
@@ -324,435 +930,1338 @@
         <section id="weeks-section" class="content-section"><div class="controls-section fade-in"><div class="controls-grid"><div><label for="search-box">🔍 Buscar tema:</label><input type="text" id="search-box" class="search-box" placeholder="Digite o nome do tema..."></div><div><label for="area-filter">🏥 Filtrar por área:</label><select id="area-filter" class="filter-select"><option value="all">Todas as áreas</option><option value="preventiva">Preventiva</option><option value="pediatria">Pediatria</option><option value="ginecologia">Ginecologia</option><option value="obstetricia">Obstetrícia</option><option value="clinica">Clínica</option><option value="cirurgia">Cirurgia</option><option value="psiquiatria">Psiquiatria</option><option value="revisao">Revisão</option></select></div></div></div><button class="btn expand-weeks-btn" id="expand-weeks" style="display: none;"><i class="fas fa-expand"></i> Mostrar todas as semanas</button><div id="weeks"></div></section>
     </main>
 
+    <!-- CHATBOT MÉDICO -->
     <div class="medical-chatbot">
         <div class="chatbot-container" id="chatbot-container">
-            <div class="chatbot-header"><button class="chatbot-close" id="chatbot-close">×</button><h3>🧠 IA Médica Revalida</h3><p>Seu assistente de estudos especializado</p></div>
-            <div class="chat-messages" id="chat-messages">
-                <div class="message bot"><div class="message-bubble">👋 Olá! Sou sua IA especializada em Revalida/Enamed. Posso te ajudar com:<br><br>• Resumos técnicos de qualquer tema<br>• Explicações didáticas <br>• Perguntas de fixação<br>• Dicas de estudo por área<br><br>Como posso te ajudar hoje?</div><div class="message-time">Agora</div></div>
-                <div class="quick-topics"><div class="quick-topic" data-topic="Resumo de Hipertensão Arterial">Hipertensão</div><div class="quick-topic" data-topic="Diabetes Mellitus principais pontos">Diabetes</div><div class="quick-topic" data-topic="Infarto Agudo do Miocárdio tratamento">IAM</div><div class="quick-topic" data-topic="Pneumonia diagnóstico">Pneumonia</div><div class="quick-topic" data-topic="Anemia ferropriva pediatria">Anemia</div></div>
+            <div class="chatbot-header">
+                <button class="chatbot-close" id="chatbot-close">×</button>
+                <h3>🧠 IA Médica Revalida</h3>
+                <p>Seu assistente de estudos especializado</p>
             </div>
-            <div class="typing-indicator" id="typing-indicator"><span>🧠 IA pensando</span><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
-            <div class="chat-input-container"><div class="chat-input-wrapper"><textarea class="chat-input" id="chat-input" placeholder="Digite sua pergunta sobre medicina..." rows="1"></textarea><button class="chat-send" id="chat-send"><i class="fas fa-paper-plane"></i></button></div></div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot">
+                    <div class="message-bubble">
+                        👋 Olá! Sou sua IA especializada em Revalida/Enamed. Posso te ajudar com:
+                        <br><br>
+                        • Resumos técnicos de qualquer tema
+                        • Explicações didáticas 
+                        • Perguntas de fixação
+                        • Dicas de estudo por área
+                        <br><br>
+                        Como posso te ajudar hoje?
+                    </div>
+                    <div class="message-time">Agora</div>
+                </div>
+                
+                <div class="quick-topics">
+                    <div class="quick-topic" data-topic="Resumo de Hipertensão Arterial">Hipertensão</div>
+                    <div class="quick-topic" data-topic="Diabetes Mellitus principais pontos">Diabetes</div>
+                    <div class="quick-topic" data-topic="Infarto Agudo do Miocárdio tratamento">IAM</div>
+                    <div class="quick-topic" data-topic="Pneumonia diagnóstico">Pneumonia</div>
+                    <div class="quick-topic" data-topic="Anemia ferropriva pediatria">Anemia</div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typing-indicator">
+                <span>🧠 IA pensando</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chat-input" 
+                        placeholder="Digite sua pergunta sobre medicina..."
+                        rows="1"
+                    ></textarea>
+                    <button class="chat-send" id="chat-send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-        <button class="chatbot-toggle" id="chatbot-toggle"><i class="fas fa-brain"></i></button>
+        
+        <button class="chatbot-toggle" id="chatbot-toggle">
+            <i class="fas fa-brain"></i>
+        </button>
     </div>
 
     <div class="modal" id="difficulty-modal"><div class="modal-content"><h3>Como foi estudar este tema?</h3><p>Avalie a dificuldade para melhorar suas revisões:</p><div class="difficulty-buttons"><button class="difficulty-btn difficulty-easy" data-difficulty="easy">😊 Fácil</button><button class="difficulty-btn difficulty-medium" data-difficulty="medium">😐 Médio</button><button class="difficulty-btn difficulty-hard" data-difficulty="hard">😰 Difícil</button></div></div></div>
     <div class="modal" id="confirmation-modal"><div class="modal-content"><h3>⚠️ Confirmar Reset</h3><p>Tem certeza que deseja resetar todo o progresso e configurações? Isso inclui suas conquistas!</p><p><strong>Esta ação não pode ser desfeita!</strong></p><div class="confirmation-buttons"><button class="btn btn-confirm" id="confirm-reset"><i class="fas fa-trash"></i> Sim, Resetar</button><button class="btn btn-cancel" id="cancel-reset"><i class="fas fa-times"></i> Cancelar</button></div></div></div>
     <div id="achievement-notification" class="achievement-notification"><i id="achievement-icon" class="fas fa-trophy"></i><div><h4 id="achievement-title">Conquista Desbloqueada!</h4><p id="achievement-desc">Descrição da conquista.</p></div></div>
-    <div class="modal" id="ia-flashcard-modal"><div class="modal-content"><h3 id="ia-flashcard-title"></h3><p id="ia-resumo"></p><button class="btn btn-cancel" onclick="hideModal('ia-flashcard-modal')">Fechar</button></div></div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<!-- Modal do Flashcard IA -->
+<div class="modal" id="ia-flashcard-modal">
+  <div class="modal-content">
+    <h3 id="ia-flashcard-title"></h3>
+    <p id="ia-resumo"></p>
+    <button class="btn btn-cancel" onclick="hideModal('ia-flashcard-modal')">Fechar</button>
+  </div>
+</div>
+
+    </div>
+    <!-- End Main App -->
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+// =================================================================================
+// SISTEMA DE AUTENTICAÇÃO COM SUPABASE
+// =================================================================================
 
-        // =======================================================
-        // 1. CONFIGURAÇÃO E LÓGICA DE AUTENTICAÇÃO FIREBASE
-        // =======================================================
-        const firebaseConfig = {
-  apiKey: "AIzaSyBir93FINYYhBOnMCV0Qh2blD99r-ivOEQ",
-  authDomain: "cronograma-b86f3.firebaseapp.com",
-  projectId: "cronograma-b86f3",
-  storageBucket: "cronograma-b86f3.firebasestorage.app",
-  messagingSenderId: "914539081430",
-  appId: "1:914539081430:web:e6ff59ae313ca01dd42377"
+// Supabase Configuration
+const SUPABASE_URL = 'https://oczcyffaolkokunxgdzf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jemN5ZmZhb2xrb2t1bnhnZHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxNzcwMDMsImV4cCI6MjA2OTc1MzAwM30.MUzZw2yJeuLqlmOoCPrTZEf1XjfNOK-JkF-Hz_EerEk';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Authentication State
+let currentUser = null;
+let isSignUp = false;
+
+// Initialize Authentication
+async function initAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+        currentUser = session.user;
+        showMainApp();
+        await loadUserData();
+    } else {
+        showLoginScreen();
+    }
+    
+    // Listen for auth changes
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN') {
+            currentUser = session.user;
+            showMainApp();
+            await loadUserData();
+        } else if (event === 'SIGNED_OUT') {
+            currentUser = null;
+            showLoginScreen();
+        }
+    });
+}
+
+function showLoginScreen() {
+    document.getElementById('loginContainer').classList.remove('hidden');
+    document.getElementById('mainApp').style.display = 'none';
+}
+
+function showMainApp() {
+    document.getElementById('loginContainer').classList.add('hidden');
+    document.getElementById('mainApp').style.display = 'block';
+    
+    // Update user info in header
+    if (currentUser) {
+        const userEmail = document.getElementById('userEmail');
+        const userAvatar = document.getElementById('userAvatar');
+        
+        userEmail.textContent = currentUser.email;
+        userAvatar.textContent = currentUser.email.charAt(0).toUpperCase();
+    }
+    
+    // Initialize the main app
+    initializeApp();
+}
+
+// Authentication Functions
+async function handleAuth(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const submitBtn = document.getElementById('authSubmitBtn');
+    const btnText = document.getElementById('authBtnText');
+    const spinner = document.getElementById('loadingSpinner');
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    btnText.style.display = 'none';
+    spinner.style.display = 'block';
+    hideMessages();
+    
+    try {
+        let result;
+        
+        if (isSignUp) {
+            result = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+            
+            if (result.error) throw result.error;
+            
+            if (result.data.user && !result.data.session) {
+                showMessage('Verifique seu e-mail para confirmar a conta!', 'success');
+                return;
+            }
+        } else {
+            result = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            
+            if (result.error) throw result.error;
+        }
+        
+    } catch (error) {
+        console.error('Auth error:', error);
+        showMessage(getErrorMessage(error.message), 'error');
+    } finally {
+        // Reset loading state
+        submitBtn.disabled = false;
+        btnText.style.display = 'block';
+        spinner.style.display = 'none';
+    }
+}
+
+async function handleGoogleLogin() {
+    try {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin
+            }
+        });
+        
+        if (error) throw error;
+        
+    } catch (error) {
+        console.error('Google login error:', error);
+        showMessage('Erro ao fazer login com Google. Tente novamente.', 'error');
+    }
+}
+
+async function logout() {
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+    } catch (error) {
+        console.error('Logout error:', error);
+        alert('Erro ao fazer logout. Tente novamente.');
+    }
+}
+
+function toggleAuthMode() {
+    isSignUp = !isSignUp;
+    
+    const title = document.querySelector('.login-title');
+    const btnText = document.getElementById('authBtnText');
+    const toggleText = document.getElementById('authToggleText');
+    const toggleLink = document.getElementById('authToggleLink');
+    
+    if (isSignUp) {
+        title.textContent = 'Criar Conta';
+        btnText.textContent = 'Criar Conta';
+        toggleText.textContent = 'Já tem uma conta?';
+        toggleLink.textContent = 'Fazer login';
+    } else {
+        title.textContent = 'Cronograma Revalida';
+        btnText.textContent = 'Entrar';
+        toggleText.textContent = 'Não tem uma conta?';
+        toggleLink.textContent = 'Criar conta';
+    }
+    
+    hideMessages();
+}
+
+function showMessage(message, type) {
+    hideMessages();
+    
+    const messageEl = document.getElementById(type === 'error' ? 'errorMessage' : 'successMessage');
+    messageEl.textContent = message;
+    messageEl.style.display = 'block';
+}
+
+function hideMessages() {
+    document.getElementById('errorMessage').style.display = 'none';
+    document.getElementById('successMessage').style.display = 'none';
+}
+
+function getErrorMessage(error) {
+    const errorMessages = {
+        'Invalid login credentials': 'E-mail ou senha incorretos',
+        'User already registered': 'Este e-mail já está cadastrado',
+        'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres',
+        'Invalid email': 'E-mail inválido',
+        'Email not confirmed': 'E-mail não confirmado. Verifique sua caixa de entrada.'
+    };
+    
+    return errorMessages[error] || 'Erro inesperado. Tente novamente.';
+}
+
+// Data Synchronization Functions
+async function saveUserData() {
+    if (!currentUser) return;
+    
+    try {
+        const userData = {
+            user_id: currentUser.id,
+            completed_topics: appState.completedTopics,
+            topic_difficulties: appState.topicDifficulties,
+            last_review_dates: appState.lastReviewDates,
+            user_profile: appState.userProfile,
+            performance_log: appState.performanceLog,
+            schedule_config: appState.scheduleConfig,
+            dark_mode: appState.darkMode,
+            custom_themes: appState.customThemes || [],
+            all_topics_flat: appState.allTopicsFlat || [],
+            schedule_data: appState.scheduleData || [],
+            updated_at: new Date().toISOString()
+        };
+        
+        const { error } = await supabase
+            .from('user_progress')
+            .upsert(userData);
+        
+        if (error) throw error;
+        
+        console.log('User data saved successfully');
+        
+    } catch (error) {
+        console.error('Error saving user data:', error);
+    }
+}
+
+async function loadUserData() {
+    if (!currentUser) return;
+    
+    try {
+        const { data, error } = await supabase
+            .from('user_progress')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .single();
+        
+        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+            throw error;
+        }
+        
+        if (data) {
+            // Load saved data
+            appState.completedTopics = data.completed_topics || {};
+            appState.topicDifficulties = data.topic_difficulties || {};
+            appState.lastReviewDates = data.last_review_dates || {};
+            appState.userProfile = { ...appState.userProfile, ...data.user_profile };
+            appState.performanceLog = data.performance_log || [];
+            appState.scheduleConfig = { ...appState.scheduleConfig, ...data.schedule_config };
+            appState.darkMode = data.dark_mode || false;
+            appState.customThemes = data.custom_themes || [];
+            appState.allTopicsFlat = data.all_topics_flat || [];
+            appState.scheduleData = data.schedule_data || [];
+            
+            // Apply theme
+            if (appState.darkMode) {
+                document.body.setAttribute('data-theme', 'dark');
+                const themeIcon = document.getElementById('theme-icon');
+                if (themeIcon) themeIcon.className = 'fas fa-sun';
+            }
+            
+            // Update UI and regenerate schedule with loaded data
+            updateAllDisplays();
+            generateSchedule(); // Regenerate schedule with loaded progress
+            
+            console.log('User data loaded successfully');
+        }
+        
+    } catch (error) {
+        console.error('Error loading user data:', error);
+    }
+}
+
+// Event Listeners for Auth
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('authForm').addEventListener('submit', handleAuth);
+    document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleLogin);
+    document.getElementById('authToggleLink').addEventListener('click', toggleAuthMode);
+    
+    // Initialize authentication
+    initAuth();
+});
+
+// Auto-save data periodically
+setInterval(() => {
+    if (currentUser) {
+        saveUserData();
+    }
+}, 30000); // Save every 30 seconds
+
+// Save data when page is about to unload
+window.addEventListener('beforeunload', () => {
+    if (currentUser) {
+        saveUserData();
+    }
+});
+
+// =================================================================================
+// SCRIPT COMPLETO E CORRIGIDO + CHATBOT MÉDICO
+// =================================================================================
+
+// DADOS E ESTADO DA APLICAÇÃO
+// ---------------------------------------------------------------------------------
+const motivationalQuotes = ["Cada página estudada é um passo mais perto do seu sonho de médico! 💉", "Você é mais forte do que qualquer desafio do Revalida! 🚀", "Foco e determinação: você vai conquistar o Enamed! 🩺", "A jornada é longa, mas sua dedicação é imbatível! 🌟", "Estude com paixão, você está moldando o futuro da saúde! ❤️"];
+const originalScheduleData = [{theme:"Atenção Básica",area:"preventiva"},{theme:"Ética Médica (Aspectos gerais, sigilo)",area:"preventiva"},{theme:"SUS (Princípios, histórico, legislação)",area:"preventiva"},{theme:"Imunizações (Vacinas)",area:"preventiva"},{theme:"Epidemiologia (Indicadores, Vigilância, Estudos)",area:"preventiva"},{theme:"Assistência Pré-natal",area:"obstetricia"},{theme:"Rastreamentos (Câncer de colo, mama)",area:"preventiva"},{theme:"Planejamento familiar",area:"ginecologia"},{theme:"Conteúdo genital patológico (Vulvovaginites)",area:"ginecologia"},{theme:"Tuberculose",area:"clinica"},{theme:"Hanseníase",area:"clinica"},{theme:"Arboviroses (Dengue, Chikungunya, Zika)",area:"clinica"},{theme:"Leptospirose e Malária",area:"clinica"},{theme:"HIV/AIDS",area:"clinica"},{theme:"IST (Sífilis e Úlceras Genitais)",area:"ginecologia"},{theme:"Hipertensão Arterial Sistêmica (HAS)",area:"clinica"},{theme:"HTA Secundária",area:"clinica"},{theme:"Diabetes (Diagnóstico, classificação, tratamento)",area:"clinica"},{theme:"Dislipidemia",area:"clinica"},{theme:"Atendimento Inicial ao Politraumatizado (ABCDE)",area:"cirurgia"},{theme:"Trauma de Vias Aéreas",area:"cirurgia"},{theme:"Asma e Crise de Asma",area:"clinica"},{theme:"DPOC",area:"clinica"},{theme:"Puericultura",area:"pediatria"},{theme:"Aleitamento materno",area:"pediatria"},{theme:"Parto (Mecanismo e assistência)",area:"obstetricia"},{theme:"Relações uterofetais",area:"obstetricia"},{theme:"Hemorragias da 1ª metade da gestação",area:"obstetricia"},{theme:"Hemorragias da 2ª metade da gestação",area:"obstetricia"},{theme:"Síndromes Hipertensivas na Gestação",area:"obstetricia"},{theme:"Diabetes na Gestação",area:"obstetricia"},{theme:"Abdome Agudo (Apendicite)",area:"cirurgia"},{theme:"Abdome Agudo (Diverticulite)",area:"cirurgia"},{theme:"Puerpério e Hemorragia pós-parto",area:"obstetricia"},{theme:"Doenças Benignas da Mama",area:"ginecologia"},{theme:"Síndrome Coronariana Aguda",area:"clinica"},{theme:"Valvulopatias",area:"clinica"},{theme:"Arritmias",area:"clinica"},{theme:"Insuficiência Cardíaca",area:"clinica"},{theme:"Tromboembolia Pulmonar",area:"clinica"},{theme:"O derrame pleural",area:"clinica"},{theme:"Pneumonia",area:"clinica"},{theme:"Pneumonia na Infância",area:"pediatria"},{theme:"IVAS",area:"pediatria"},{theme:"Bronquiolite",area:"pediatria"},{theme:"Diarreia e Desidratação",area:"pediatria"},{theme:"Constipação na infância",area:"pediatria"},{theme:"Parasitoses Intestinais",area:"pediatria"},{theme:"Violência Doméstica e Sexual",area:"preventiva"},{theme:"Maus tratos",area:"preventiva"},{theme:"Ética: Declaração de Óbito",area:"preventiva"},{theme:"Abdome Agudo Obstrutivo",area:"cirurgia"},{theme:"Hérnias da parede abdominal",area:"cirurgia"},{theme:"Doenças orificiais",area:"cirurgia"},{theme:"Abdome Agudo Perfurativo, Vascular, Hemorrágico",area:"cirurgia"},{theme:"Pancreatite Aguda",area:"cirurgia"},{theme:"Cirurgia Pediátrica (Urologia, Gastro)",area:"cirurgia"},{theme:"Doenças congênitas",area:"pediatria"},{theme:"Trauma Torácico",area:"cirurgia"},{theme:"Trauma Abdominal",area:"cirurgia"},{theme:"Trauma Cervical e Pélvico",area:"cirurgia"},{theme:"TCE e TRM",area:"cirurgia"},{theme:"Ortopedia e Trauma de Extremidades",area:"cirurgia"},{theme:"Lombalgia",area:"clinica"},{theme:"Hepatites Virais",area:"clinica"},{theme:"Icterícia Neonatal",area:"pediatria"},{theme:"Doenças das vias biliares",area:"cirurgia"},{theme:"Doença do Refluxo Gastroesofágico",area:"clinica"},{theme:"Úlcera Péptica e H. pylori",area:"clinica"},{theme:"Câncer de Esôfago",area:"cirurgia"},{theme:"Doença Inflamatória Intestinal",area:"clinica"},{theme:"Síndrome do Intestino Irritável",area:"clinica"},{theme:"Câncer Colorretal",area:"cirurgia"},{theme:"Infecções e Gestação (TORCH, Sífilis, Toxoplasmose)",area:"obstetricia"},{theme:"HIV e gestação",area:"obstetricia"},{theme:"Triagem Neonatal (Teste do Pezinho)",area:"pediatria"},{theme:"Avaliação Neonatal",area:"pediatria"},{theme:"Reanimação Neonatal",area:"pediatria"},{theme:"Hipotireoidismo e Hipertireoidismo",area:"clinica"},{theme:"Nódulo e Câncer de Tireoide",area:"clinica"},{theme:"Anemias Carenciais (Ferropriva)",area:"clinica"},{theme:"Anemias Hemolíticas",area:"clinica"},{theme:"Neoplasias Hematológicas",area:"clinica"},{theme:"Doenças Exantemáticas",area:"pediatria"},{theme:"Meningites",area:"pediatria"},{theme:"Febre Reumática",area:"clinica"},{theme:"Ética: Medicina do Trabalho",area:"preventiva"},{theme:"Processo Saúde-Doença",area:"preventiva"},{theme:"Cuidados Paliativos",area:"preventiva"},{theme:"Transtornos do Humor",area:"psiquiatria"},{theme:"Transtornos de Ansiedade",area:"psiquiatria"},{theme:"Psiquiatria Geral",area:"psiquiatria"},{theme:"Doença Inflamatória Pélvica (DIP)",area:"ginecologia"},{theme:"Sangramento Uterino Anormal",area:"ginecologia"},{theme:"Amenorreia",area:"ginecologia"},{theme:"Câncer de Ovário",area:"ginecologia"},{theme:"Endometriose",area:"ginecologia"},{theme:"Síndrome dos Ovários Policísticos",area:"ginecologia"},{theme:"Infecção do Trato Urinário (ITU)",area:"clinica"},{theme:"ITU na Gestação",area:"obstetricia"},{theme:"ITU na Infância",area:"pediatria"},{theme:"Injúria Renal Aguda (IRA)",area:"clinica"},{theme:"Doenças Glomerulares",area:"clinica"},{theme:"Urologia geral",area:"cirurgia"},{theme:"Câncer de Próstata",area:"cirurgia"},{theme:"Cirurgia de Obesidade",area:"cirurgia"},{theme:"Cirurgia Vascular",area:"cirurgia"},{theme:"Revisão de Altíssima Prevalência (Preventiva)",area:"revisao"},{theme:"Revisão de Altíssima Prevalência (Clínica)",area:"revisao"},{theme:"Revisão de Altíssima Prevalência (Cirurgia)",area:"revisao"},{theme:"Revisão de Altíssima Prevalência (G.O./PEDS)",area:"revisao"},{theme:"Otorrinolaringologia",area:"cirurgia"},{theme:"Cefaleia",area:"clinica"},{theme:"Epilepsia e convulsão febril",area:"clinica"},{theme:"Doença de Parkinson",area:"clinica"},{theme:"Lúpus",area:"clinica"},{theme:"Artrite Reumatoide",area:"clinica"},{theme:"Fibromialgia",area:"clinica"},{theme:"SIMULADO COMPLETO 1",area:"revisao"},{theme:"Correção Detalhada do Simulado 1",area:"revisao"},{theme:"Revisão de Média Prevalência (Clínica)",area:"revisao"},{theme:"Revisão de Média Prevalência (Cirurgia/G.O.)",area:"revisao"},{theme:"Revisão de Média Prevalência (Peds/Preventiva)",area:"revisao"},{theme:"Intoxicações exógenas",area:"clinica"},{theme:"Acidentes por Animais Peçonhentos",area:"clinica"},{theme:"Queimados",area:"cirurgia"},{theme:"Raiva e tétano",area:"preventiva"},{theme:"Doação de órgãos e morte encefálica",area:"preventiva"},{theme:"Geriatria",area:"clinica"},{theme:"Perioperatório - exames, medicamentos, segurança",area:"cirurgia"},{theme:"Técnica cirúrgica e Corpo estranho",area:"cirurgia"},{theme:"Distúrbios da hemostasia",area:"clinica"},{theme:"SIMULADO COMPLETO 2",area:"revisao"},{theme:"Correção Detalhada do Simulado 2",area:"revisao"},{theme:"Revisão por Fraqueza (Simulados)",area:"revisao"},{theme:"Revisão por Fraqueza (Questões)",area:"revisao"},{theme:"Infertilidade",area:"ginecologia"},{theme:"Prematuridade",area:"pediatria"},{theme:"Restrição de Crescimento Fetal",area:"obstetricia"},{theme:"Vitalidade Fetal",area:"obstetricia"},{theme:"Rotura prematura de membranas",area:"obstetricia"},{theme:"Revisão Geral Rápida (Resumos e Flashcards)",area:"revisao"},{theme:"Revisão Leve (Fórmulas, escores, algoritmos)",area:"revisao"},{theme:"SIMULADO COMPLETO 3 (Opcional)",area:"revisao"},{theme:"Correção Detalhada do Simulado 3",area:"revisao"},{theme:"Anestesia",area:"cirurgia"},{theme:"Cirurgia plástica - câncer de pele melanoma e não melanoma",area:"cirurgia"},{theme:"Sepse",area:"clinica"},{theme:"Monoartrite aguda - gota e artrite infecciosa",area:"clinica"},{theme:"Leishmaniose",area:"clinica"},{theme:"PBLS e PALS",area:"pediatria"},{theme:"Desconforto respiratório do recém-nascido",area:"pediatria"},{theme:"Distúrbios do crescimento e desenvolvimento",area:"pediatria"},{theme:"Cardiopatias congênitas",area:"pediatria"},{theme:"Isoimunização RH",area:"obstetricia"},{theme:"Patologias vulvares",area:"ginecologia"},{theme:"Saúde da Família",area:"preventiva"},{theme:"Desnutrição e obesidade",area:"clinica"},{theme:"Tumores de pâncreas",area:"cirurgia"},{theme:"Revisão Final: Pontos fracos e temas de alta prevalência",area:"revisao"},{theme:"Revisão Final: Mais pontos fracos e temas de alta prevalência",area:"revisao"},{theme:"Revisão Leve: Confiança no processo",area:"revisao"},{theme:"Descanso e Organização",area:"revisao"},{theme:"DESCANSO TOTAL",area:"revisao"}];
+
+const appState = {
+    sidebarOpen: false,
+    sidebarCollapsed: false,
+    minimalistMode: localStorage.getItem('minimalistMode') === 'true',
+    darkMode: localStorage.getItem('darkMode') === 'true',
+    pomodoroRunning: false,
+    pomodoroTime: 25 * 60,
+    pomodoroInterval: null,
+    currentPomodoroType: 'focus',
+    currentDifficultyTopic: null,
+    currentSection: 'stats',
+    charts: {
+        completionBySubject: null,
+        performanceByArea: null
+    },
+    completedTopics: JSON.parse(localStorage.getItem('completedTopics')) || {},
+    topicDifficulties: JSON.parse(localStorage.getItem('topicDifficulties')) || {},
+    lastReviewDates: JSON.parse(localStorage.getItem('lastReviewDates')) || {},
+    customThemes: JSON.parse(localStorage.getItem('customThemes')) || [], 
+    performanceLog: JSON.parse(localStorage.getItem('performanceLog')) || [],
+    userProfile: JSON.parse(localStorage.getItem('userProfile')) || {
+        xp: 0,
+        level: 0,
+        unlockedAchievements: {},
+        lastStudyDate: null,
+        studyStreak: 0,
+        completedPomodoros: 0,
+    },
+    scheduleConfig: JSON.parse(localStorage.getItem('scheduleConfig')) || {
+        startDate: '2025-07-28',
+        examDate: '2025-10-19',
+        maxTopicsPerDay: 4
+    },
+    allTopicsFlat: []
 };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
+// CONFIGURAÇÃO DO CHATBOT MÉDICO
+// ---------------------------------------------------------------------------------
+const GEMINI_API_KEY = 'AIzaSyBtGkKLxXBnr2ro-qGR3J2-feq5W4HKKwk';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-        // Elementos do DOM para Login/Registro
-        const loginOverlay = document.getElementById('login-overlay');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const googleLoginBtn = document.getElementById('google-login');
-        const logoutBtn = document.getElementById('logout-btn');
-        const loginTab = document.getElementById('login-tab');
-        const registerTab = document.getElementById('register-tab');
-        const loginError = document.getElementById('login-error');
-        const loginLoading = document.getElementById('login-loading');
-        const userNameDisplay = document.getElementById('user-name');
-        const userAvatarDisplay = document.getElementById('user-avatar');
+const medicalChatbot = {
+    isOpen: false,
+    conversationHistory: JSON.parse(localStorage.getItem('chatbotHistory')) || [],
+    
+    systemPrompt: `Você é um assistente de estudos especializado no Revalida e na prática médica brasileira. Seu papel é ajudar o usuário com revisões rápidas, esquemas, perguntas de fixação e explicações claras, sempre dentro do contexto do cronograma de estudos que ele está seguindo.
 
-        const showLoading = (isLoading) => { loginLoading.style.display = isLoading ? 'block' : 'none'; };
-        const showError = (message) => { loginError.textContent = message; loginError.style.display = 'block'; };
-        const hideError = () => { loginError.style.display = 'none'; };
+Sempre que o usuário fizer uma pergunta, responda de forma objetiva e prática, como se fosse um colega de residência experiente, mas didático. Use linguagem acessível, evite floreios, e priorize a clareza.
 
-        // Event Listeners da UI de Login
-        loginTab.addEventListener('click', () => {
-            loginTab.classList.add('active');
-            registerTab.classList.remove('active');
-            loginForm.classList.add('active');
-            registerForm.classList.remove('active');
-            hideError();
-        });
 
-        registerTab.addEventListener('click', () => {
-            registerTab.classList.add('active');
-            loginTab.classList.remove('active');
-            registerForm.classList.add('active');
-            loginForm.classList.remove('active');
-            hideError();
-        });
+Você deve dominar os temas do cronograma de estudos, incluindo:
+- Clínica Médica (CM)
+- Cirurgia (CR) 
+- Pediatria (PED)
+- Ginecologia e Obstetrícia (GO)
+- Medicina Preventiva e Saúde Pública (PRE)
 
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            hideError();
-            showLoading(true);
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            auth.signInWithEmailAndPassword(email, password)
-                .catch(error => showError("E-mail ou senha inválidos. Tente novamente."))
-                .finally(() => showLoading(false));
-        });
+Se o usuário não for claro, peça que ele diga o tema ou área para ajudar melhor. Seja direto, mas respeitoso. Nada de ironia ou piadas internas.
 
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            hideError();
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm-password').value;
+Você está integrado a uma plataforma de estudos, então pense como parte do sistema, não como um chatbot genérico. Sempre responda com foco em ajudar o usuário a se preparar para a prova do Revalida 2025.`,
 
-            if (password !== confirmPassword) return showError("As senhas não coincidem.");
-            
-            showLoading(true);
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    // Cria o perfil do usuário na coleção 'users'
-                    db.collection('users').doc(userCredential.user.uid).set({
-                        name: name,
-                        email: email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    })
-                })
-                .catch(error => {
-                    if (error.code === 'auth/email-already-in-use') {
-                        showError("Este e-mail já está cadastrado.");
-                    } else {
-                        showError("Erro ao criar conta. Verifique o e-mail ou tente novamente.");
+    async sendMessage(userMessage) {
+        try {
+            const response = await fetch(GEMINI_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-goog-api-key': GEMINI_API_KEY
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: this.systemPrompt + "\n\nPergunta do usuário: " + userMessage
+                                }
+                            ]
+                        }
+                    ],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 800,
                     }
                 })
-                .finally(() => showLoading(false));
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro na API: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 
+                              "Desculpe, não consegui processar sua pergunta. Tente novamente.";
+            
+            return aiResponse;
+        } catch (error) {
+            console.error('Erro na chamada da API Gemini:', error);
+            return "Erro de conexão com a IA. Verifique sua internet e tente novamente.";
+        }
+    },
+
+    saveHistory() {
+        localStorage.setItem('chatbotHistory', JSON.stringify(this.conversationHistory));
+    },
+
+    addMessage(message, isUser = false) {
+        const messageObj = {
+            text: message,
+            isUser: isUser,
+            timestamp: new Date().toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            })
+        };
+        
+        this.conversationHistory.push(messageObj);
+        this.saveHistory();
+        this.renderMessage(messageObj);
+    },
+
+    renderMessage(messageObj) {
+        const messagesContainer = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${messageObj.isUser ? 'user' : 'bot'}`;
+        
+        messageDiv.innerHTML = `
+            <div class="message-bubble">
+                ${messageObj.text.replace(/\n/g, '<br>')}
+            </div>
+            <div class="message-time">${messageObj.timestamp}</div>
+        `;
+        
+        // Remove quick topics se for a primeira mensagem do usuário
+        if (messageObj.isUser && this.conversationHistory.filter(m => m.isUser).length === 1) {
+            const quickTopics = messagesContainer.querySelector('.quick-topics');
+            if (quickTopics) quickTopics.remove();
+        }
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    },
+
+    showTyping() {
+        document.getElementById('typing-indicator').classList.add('active');
+        const messagesContainer = document.getElementById('chat-messages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    },
+
+    hideTyping() {
+        document.getElementById('typing-indicator').classList.remove('active');
+    },
+
+    async handleUserMessage(message) {
+        if (!message.trim()) return;
+        
+        // Adiciona mensagem do usuário
+        this.addMessage(message, true);
+        
+        // Mostra indicador de digitação
+        this.showTyping();
+        
+        // Processa resposta da IA
+        const aiResponse = await this.sendMessage(message);
+        
+        // Esconde indicador e adiciona resposta
+        this.hideTyping();
+        this.addMessage(aiResponse, false);
+        
+        // Limpa input
+        document.getElementById('chat-input').value = '';
+        this.adjustTextareaHeight();
+    },
+
+    adjustTextareaHeight() {
+        const textarea = document.getElementById('chat-input');
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+    },
+
+    toggle() {
+        this.isOpen = !this.isOpen;
+        const container = document.getElementById('chatbot-container');
+        const toggle = document.getElementById('chatbot-toggle');
+        
+        container.classList.toggle('active', this.isOpen);
+        toggle.classList.toggle('active', this.isOpen);
+        
+        if (this.isOpen) {
+            document.getElementById('chat-input').focus();
+            this.loadHistory();
+        }
+    },
+
+    loadHistory() {
+        const messagesContainer = document.getElementById('chat-messages');
+        // Limpa mensagens existentes exceto a primeira e quick topics
+        const firstMessage = messagesContainer.querySelector('.message.bot');
+        const quickTopics = messagesContainer.querySelector('.quick-topics');
+        messagesContainer.innerHTML = '';
+        
+        if (firstMessage) messagesContainer.appendChild(firstMessage);
+        if (quickTopics && this.conversationHistory.filter(m => m.isUser).length === 0) {
+            messagesContainer.appendChild(quickTopics);
+        }
+        
+        // Carrega histórico
+        this.conversationHistory.forEach(msg => {
+            this.renderMessage(msg);
+        });
+    },
+
+    init() {
+        const toggle = document.getElementById('chatbot-toggle');
+        const close = document.getElementById('chatbot-close');
+        const sendBtn = document.getElementById('chat-send');
+        const input = document.getElementById('chat-input');
+        
+        // Event listeners
+        toggle.addEventListener('click', () => this.toggle());
+        close.addEventListener('click', () => this.toggle());
+        
+        sendBtn.addEventListener('click', () => {
+            const message = input.value.trim();
+            if (message) this.handleUserMessage(message);
         });
         
-        googleLoginBtn.addEventListener('click', () => {
-            hideError();
-            showLoading(true);
-            auth.signInWithPopup(googleProvider)
-                .then(result => {
-                    const user = result.user;
-                    const userRef = db.collection('users').doc(user.uid);
-                    // Cria o perfil do usuário apenas se ele não existir
-                    return userRef.get().then(doc => {
-                        if (!doc.exists) {
-                            userRef.set({
-                                name: user.displayName,
-                                email: user.email,
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        }
-                    });
-                })
-                .catch(error => showError("Não foi possível fazer login com o Google."))
-                .finally(() => showLoading(false));
-        });
-
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut();
-        });
-
-        // =======================================================
-        // 2. O "PORTEIRO" DA APLICAÇÃO - CONTROLE DE ESTADO DE AUTH
-        // =======================================================
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // ---- USUÁRIO LOGADO ----
-                loginOverlay.classList.add('hidden'); // Esconde a tela de login
-
-                // Pega dados do perfil do usuário da coleção 'users'
-                db.collection('users').doc(user.uid).get().then(doc => {
-                    if (doc.exists) {
-                        const userName = doc.data().name || "Usuário";
-                        userNameDisplay.textContent = userName;
-                        userAvatarDisplay.textContent = userName.charAt(0).toUpperCase();
-                    }
-                });
-
-                // Carrega o progresso do usuário e inicia a aplicação principal
-                loadUserProgressAndInitializeApp(user.uid);
-
-            } else {
-                // ---- USUÁRIO DESLOGADO ----
-                loginOverlay.classList.remove('hidden'); // Mostra a tela de login
-                // Limpa o conteúdo principal para evitar mostrar dados antigos
-                document.getElementById('main-content').innerHTML = '';
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const message = input.value.trim();
+                if (message) this.handleUserMessage(message);
             }
         });
-
-        // =================================================================
-        // 3. LÓGICA DE DADOS (FIRESTORE) E ESTADO GLOBAL
-        // =================================================================
         
-        // Objeto de estado global da aplicação
-        let appState = {};
+        input.addEventListener('input', () => this.adjustTextareaHeight());
+        
+        // Quick topics
+        document.querySelectorAll('.quick-topic').forEach(topic => {
+            topic.addEventListener('click', () => {
+                this.handleUserMessage(topic.dataset.topic);
+            });
+        });
+        
+        // Fecha chatbot ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (this.isOpen && !e.target.closest('.medical-chatbot')) {
+                this.toggle();
+            }
+        });
+    }
+};
 
-        // Função para CARREGAR os dados do Firestore e depois iniciar o app
-        async function loadUserProgressAndInitializeApp(userId) {
-            const docRef = db.collection('userProgress').doc(userId);
-            const doc = await docRef.get();
+// GAMIFICAÇÃO: NÍVEIS E CONQUISTAS
+// ---------------------------------------------------------------------------------
+const studentLevels = [
+    { title: "Estudante Iniciante", avatar: "👶", xpRequired: 0, description: "Começando sua jornada médica" },
+    { title: "Interno Virtual", avatar: "👨‍⚕️", xpRequired: 100, description: "Primeiros passos na prática clínica" },
+    { title: "R1 Clínico", avatar: "👩‍⚕️", xpRequired: 200, description: "Residência médica - 1º ano" },
+    { title: "R2 Cirúrgico", avatar: "🧑‍⚕️", xpRequired: 350, description: "Residência médica - 2º ano" },
+    { title: "R3 Especialista", avatar: "👨‍🔬", xpRequired: 550, description: "Residência médica - 3º ano" },
+    { title: "Especialista Júnior", avatar: "👩‍🔬", xpRequired: 800, description: "Formação especializada completa" },
+    { title: "Especialista Pleno", avatar: "👨‍🎓", xpRequired: 1100, description: "Experiência clínica consolidada" },
+    { title: "Mestre em Medicina", avatar: "👩‍🎓", xpRequired: 1500, description: "Domínio da especialidade" },
+    { title: "Professor Doutor", avatar: "👨‍🏫", xpRequired: 2000, description: "Compartilhando conhecimento" },
+    { title: "Chefe de Serviço", avatar: "👩‍🏫", xpRequired: 2600, description: "Liderança na área médica" },
+    { title: "Lenda Médica", avatar: "🦸", xpRequired: 3300, description: "Excelência e reconhecimento" }
+];
+const XP_VALUES = {
+    completeTopic: 15,       // XP por completar um tema
+    dailyStreak: 5,          // XP por manter sequência de dias
+    pomodoroComplete: 3,     // XP por ciclo pomodoro completo
+    performanceEntry: 20,    // XP por registro de desempenho
+    achievementUnlocked: 50  // XP por desbloquear conquista
+};
 
-            const defaultState = {
-                sidebarOpen: false,
-                sidebarCollapsed: false,
-                minimalistMode: false,
-                darkMode: false,
-                pomodoroRunning: false,
-                pomodoroTime: 25 * 60,
-                pomodoroInterval: null,
-                currentPomodoroType: 'focus',
-                currentDifficultyTopic: null,
-                currentSection: 'stats',
-                charts: { completionBySubject: null, performanceByArea: null },
-                completedTopics: {},
-                topicDifficulties: {},
-                lastReviewDates: {},
-                customThemes: [], 
-                performanceLog: [],
-                userProfile: { xp: 0, level: 0, unlockedAchievements: {}, lastStudyDate: null, studyStreak: 0, completedPomodoros: 0 },
-                scheduleConfig: { startDate: '2025-07-28', examDate: '2025-10-19', maxTopicsPerDay: 4 },
-                allTopicsFlat: []
-            };
+const achievements = {
+    clinicoRaiz: { title: "Clínico Raiz", description: "Finalizou todos os temas de Clínica Médica.", icon: "fas fa-stethoscope", category: "area", check: (s) => checkAreaCompletion(s, 'clinica') },
+    goWarrior: { title: "GO Warrior", description: "Finalizou Ginecologia e Obstetrícia.", icon: "fas fa-baby-carriage", category: "area", check: (s) => checkAreaCompletion(s, 'ginecologia') && checkAreaCompletion(s, 'obstetricia') },
+    miniCirurgiao: { title: "Mini-Cirurgião", description: "Completou os temas de Cirurgia Geral.", icon: "fas fa-scalpel", category: "area", check: (s) => checkAreaCompletion(s, 'cirurgia') },
+    pediatraMirim: { title: "Pediatra Mirim", description: "Concluiu todos os temas de Pediatria.", icon: "fas fa-child", category: "area", check: (s) => checkAreaCompletion(s, 'pediatria') },
+    mestrePreventiva: { title: "Mestre da Preventiva", description: "Terminou os temas de Saúde Coletiva.", icon: "fas fa-users", category: "area", check: (s) => checkAreaCompletion(s, 'preventiva') },
+    psiquiatraHonorario: { title: "Psiquiatra Honorário", description: "Finalizou os temas de Psiquiatria.", icon: "fas fa-brain", category: "area", check: (s) => checkAreaCompletion(s, 'psiquiatria') },
+    
+    leaoSimulado: { title: "Leão de Simulado", description: "Fez 5 registros de simulado/questões.", icon: "fas fa-award", category: "produtividade", check: (s) => s.performanceLog.length >= 5 },
+    focoTotal: { title: "Foco Total", description: "Usou o Pomodoro por 10 ciclos completos.", icon: "fas fa-clock", category: "produtividade", check: (s) => s.userProfile.completedPomodoros >= 10 },
+    modoTurbo: { title: "Modo Turbo", description: "Estudou todos os dias úteis da semana.", icon: "fas fa-bolt", category: "produtividade", check: () => checkWeekdayStreak() },
+    chatbotExplorer: { title: "Explorador IA", description: "Fez 10 perguntas para a IA médica.", icon: "fas fa-robot", category: "produtividade", check: () => (JSON.parse(localStorage.getItem('chatbotHistory')) || []).filter(m => m.isUser).length >= 10 },
 
-            if (doc.exists) {
-                const cloudData = doc.data();
-                // Mescla os dados da nuvem com os padrões para evitar erros se algum campo faltar
-                appState = {
-                    ...defaultState,
-                    ...cloudData,
-                    // Garante que objetos aninhados também sejam mesclados corretamente
-                    userProfile: { ...defaultState.userProfile, ...(cloudData.userProfile || {}) },
-                    scheduleConfig: { ...defaultState.scheduleConfig, ...(cloudData.scheduleConfig || {}) },
-                };
+    streak1: { title: "Primeiro Passo", description: "1º dia consecutivo de estudo.", icon: "fas fa-shoe-prints", category: "consistencia", check: (s) => s.userProfile.studyStreak >= 1 },
+    streak5: { title: "5 Dias no Ritmo", description: "Cinco dias seguidos estudando.", icon: "fas fa-fire", category: "consistencia", check: (s) => s.userProfile.studyStreak >= 5 },
+    streak14: { title: "Study Beast", description: "14 dias seguidos sem falhar.", icon: "fas fa-meteor", category: "consistencia", check: (s) => s.userProfile.studyStreak >= 14 },
+    streak30: { title: "Insano do Revalida", description: "30 dias de estudo consecutivos.", icon: "fas fa-crown", category: "consistencia", check: (s) => s.userProfile.studyStreak >= 30 },
+    
+    semanaPerfeita: { title: "Semana Perfeita", description: "Cumpriu 100% da meta da semana atual.", icon: "fas fa-check-double", category: "metas", check: () => checkCurrentWeekCompletion() },
+    
+    comecouNaSegunda: { title: "Começou na Segunda", description: "Iniciou a jornada numa segunda-feira.", icon: "fas fa-calendar-day", category: "secretas", check: (s) => new Date(s.scheduleConfig.startDate + "T12:00:00Z").getUTCDay() === 1 },
+    vaiComTudo: { title: "Vai com Tudo!", description: "Estudou e fez simulado no mesmo dia.", icon: "fas fa-bomb", category: "secretas", check: (s) => checkStudyAndSimuladoToday(s) }
+};
+
+// FUNÇÕES DE LÓGICA DO CRONOGRAMA
+// ---------------------------------------------------------------------------------
+function prepareAllTopics() {
+    appState.allTopicsFlat = [...originalScheduleData, ...appState.customThemes];
+}
+
+function regenerateAndRenderSchedule() {
+    prepareAllTopics();
+    const studyDays = getStudyDays(appState.scheduleConfig.startDate, appState.scheduleConfig.examDate);
+    const distributionResult = distributeTopics(appState.allTopicsFlat, studyDays, appState.scheduleConfig.maxTopicsPerDay);
+    const newSchedule = buildNewSchedule(distributionResult.distributedDays);
+    generateDynamicWeeks(newSchedule);
+    updateAllStatsAndCharts();
+}
+
+function getStudyDays(startDateStr, endDateStr) {
+    const studyDays = [];
+    let currentDate = new Date(`${startDateStr}T12:00:00Z`);
+    const endDate = new Date(`${endDateStr}T12:00:00Z`);
+    while (currentDate <= endDate) {
+        if (currentDate.getUTCDay() !== 0) { // Pula Domingos
+            studyDays.push(new Date(currentDate));
+        }
+        currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+    }
+    return studyDays;
+}
+
+function distributeTopics(topics, studyDays, maxTopicsPerDay) {
+    let topicIndex = 0;
+    const distributedDays = [];
+    for (let dayIndex = 0; dayIndex < studyDays.length; dayIndex++) {
+        const weekIndex = Math.floor(dayIndex / 6);
+        const topicsForThisDay = Math.min(weekIndex + 1, maxTopicsPerDay);
+        const assignedTopics = [];
+        if (topicIndex < topics.length) {
+            for (let i = 0; i < topicsForThisDay && topicIndex < topics.length; i++) {
+                assignedTopics.push(topics[topicIndex]);
+                topicIndex++;
+            }
+        }
+        distributedDays.push({ date: studyDays[dayIndex], topics: assignedTopics });
+    }
+    const finalDays = distributedDays.filter(d => d.topics.length > 0);
+    const remainingDays = distributedDays.filter(d => d.topics.length === 0).map(d => d.date);
+    return { distributedDays: finalDays, remainingDays: remainingDays };
+}
+
+function buildNewSchedule(distributedDays) {
+    if (!distributedDays || distributedDays.length === 0) return [];
+    const newSchedule = [];
+    let weekChunk = [];
+    distributedDays.sort((a, b) => a.date - b.date);
+    for (const day of distributedDays) {
+        if (weekChunk.length > 0 && day.date.getUTCDay() === 1) { // Nova semana na Segunda
+            newSchedule.push(weekChunk);
+            weekChunk = [];
+        }
+        weekChunk.push(day);
+    }
+    if (weekChunk.length > 0) newSchedule.push(weekChunk);
+
+    return newSchedule.map((weekDays, index) => {
+        const dayMap = new Map(weekDays.map(d => [d.date.getUTCDay(), d]));
+        let firstDayOfWeek = new Date(weekDays[0].date);
+        let dayOfWeek = firstDayOfWeek.getUTCDay();
+        if (dayOfWeek === 0) dayOfWeek = 7;
+        firstDayOfWeek.setUTCDate(firstDayOfWeek.getUTCDate() - (dayOfWeek - 1));
+
+        const fullWeekDays = [];
+        for (let i = 1; i <= 7; i++) { // 1=Seg...7=Dom
+            const currentDay = new Date(firstDayOfWeek);
+            currentDay.setUTCDate(firstDayOfWeek.getUTCDate() + i - 1);
+            const dayData = dayMap.get(currentDay.getUTCDay());
+            if (currentDay.getUTCDay() === 0) { // Domingo
+                fullWeekDays.push({ date: currentDay, themes: [{ theme: 'DESCANSO', area: 'rest' }], isRest: true });
             } else {
-                // Se o usuário não tem dados (primeiro login), usa o estado padrão
-                appState = defaultState;
+                fullWeekDays.push({ date: currentDay, themes: dayData ? dayData.topics : [], isRest: false });
             }
-
-            // Inicia a aplicação principal com o estado carregado ou padrão
-            runMainApplication();
         }
-
-        // Função para SALVAR todo o progresso no Firestore
-        function saveProgressToFirestore() {
-            const userId = auth.currentUser?.uid;
-            if (!userId) return; // Não salva se não houver usuário
-
-            // Seleciona apenas os dados que precisam ser persistidos na nuvem
-            const dataToSave = {
-                darkMode: appState.darkMode,
-                minimalistMode: appState.minimalistMode,
-                completedTopics: appState.completedTopics,
-                topicDifficulties: appState.topicDifficulties,
-                lastReviewDates: appState.lastReviewDates,
-                customThemes: appState.customThemes,
-                performanceLog: appState.performanceLog,
-                userProfile: appState.userProfile,
-                scheduleConfig: appState.scheduleConfig,
-            };
-            
-            db.collection('userProgress').doc(userId).set(dataToSave, { merge: true })
-                .catch(error => console.error("Erro ao salvar progresso no Firestore:", error));
-        }
-
-
-        // =================================================================
-        // 4. LÓGICA PRINCIPAL DA APLICAÇÃO (ENCAPSULADA)
-        // =================================================================
-        function runMainApplication() {
-            
-            // DADOS E CONSTANTES DA APLICAÇÃO
-            const originalScheduleData = [{theme:"Atenção Básica",area:"preventiva"},{theme:"Ética Médica (Aspectos gerais, sigilo)",area:"preventiva"},{theme:"SUS (Princípios, histórico, legislação)",area:"preventiva"},{theme:"Imunizações (Vacinas)",area:"preventiva"},{theme:"Epidemiologia (Indicadores, Vigilância, Estudos)",area:"preventiva"},{theme:"Assistência Pré-natal",area:"obstetricia"},{theme:"Rastreamentos (Câncer de colo, mama)",area:"preventiva"},{theme:"Planejamento familiar",area:"ginecologia"},{theme:"Conteúdo genital patológico (Vulvovaginites)",area:"ginecologia"},{theme:"Tuberculose",area:"clinica"},{theme:"Hanseníase",area:"clinica"},{theme:"Arboviroses (Dengue, Chikungunya, Zika)",area:"clinica"},{theme:"Leptospirose e Malária",area:"clinica"},{theme:"HIV/AIDS",area:"clinica"},{theme:"IST (Sífilis e Úlceras Genitais)",area:"ginecologia"},{theme:"Hipertensão Arterial Sistêmica (HAS)",area:"clinica"},{theme:"HTA Secundária",area:"clinica"},{theme:"Diabetes (Diagnóstico, classificação, tratamento)",area:"clinica"},{theme:"Dislipidemia",area:"clinica"},{theme:"Atendimento Inicial ao Politraumatizado (ABCDE)",area:"cirurgia"},{theme:"Trauma de Vias Aéreas",area:"cirurgia"},{theme:"Asma e Crise de Asma",area:"clinica"},{theme:"DPOC",area:"clinica"},{theme:"Puericultura",area:"pediatria"},{theme:"Aleitamento materno",area:"pediatria"},{theme:"Parto (Mecanismo e assistência)",area:"obstetricia"},{theme:"Relações uterofetais",area:"obstetricia"},{theme:"Hemorragias da 1ª metade da gestação",area:"obstetricia"},{theme:"Hemorragias da 2ª metade da gestação",area:"obstetricia"},{theme:"Síndromes Hipertensivas na Gestação",area:"obstetricia"},{theme:"Diabetes na Gestação",area:"obstetricia"},{theme:"Abdome Agudo (Apendicite)",area:"cirurgia"},{theme:"Abdome Agudo (Diverticulite)",area:"cirurgia"},{theme:"Puerpério e Hemorragia pós-parto",area:"obstetricia"},{theme:"Doenças Benignas da Mama",area:"ginecologia"},{theme:"Síndrome Coronariana Aguda",area:"clinica"},{theme:"Valvulopatias",area:"clinica"},{theme:"Arritmias",area:"clinica"},{theme:"Insuficiência Cardíaca",area:"clinica"},{theme:"Tromboembolia Pulmonar",area:"clinica"},{theme:"O derrame pleural",area:"clinica"},{theme:"Pneumonia",area:"clinica"},{theme:"Pneumonia na Infância",area:"pediatria"},{theme:"IVAS",area:"pediatria"},{theme:"Bronquiolite",area:"pediatria"},{theme:"Diarreia e Desidratação",area:"pediatria"},{theme:"Constipação na infância",area:"pediatria"},{theme:"Parasitoses Intestinais",area:"pediatria"},{theme:"Violência Doméstica e Sexual",area:"preventiva"},{theme:"Maus tratos",area:"preventiva"},{theme:"Ética: Declaração de Óbito",area:"preventiva"},{theme:"Abdome Agudo Obstrutivo",area:"cirurgia"},{theme:"Hérnias da parede abdominal",area:"cirurgia"},{theme:"Doenças orificiais",area:"cirurgia"},{theme:"Abdome Agudo Perfurativo, Vascular, Hemorrágico",area:"cirurgia"},{theme:"Pancreatite Aguda",area:"cirurgia"},{theme:"Cirurgia Pediátrica (Urologia, Gastro)",area:"cirurgia"},{theme:"Doenças congênitas",area:"pediatria"},{theme:"Trauma Torácico",area:"cirurgia"},{theme:"Trauma Abdominal",area:"cirurgia"},{theme:"Trauma Cervical e Pélvico",area:"cirurgia"},{theme:"TCE e TRM",area:"cirurgia"},{theme:"Ortopedia e Trauma de Extremidades",area:"cirurgia"},{theme:"Lombalgia",area:"clinica"},{theme:"Hepatites Virais",area:"clinica"},{theme:"Icterícia Neonatal",area:"pediatria"},{theme:"Doenças das vias biliares",area:"cirurgia"},{theme:"Doença do Refluxo Gastroesofágico",area:"clinica"},{theme:"Úlcera Péptica e H. pylori",area:"clinica"},{theme:"Câncer de Esôfago",area:"cirurgia"},{theme:"Doença Inflamatória Intestinal",area:"clinica"},{theme:"Síndrome do Intestino Irritável",area:"clinica"},{theme:"Câncer Colorretal",area:"cirurgia"},{theme:"Infecções e Gestação (TORCH, Sífilis, Toxoplasmose)",area:"obstetricia"},{theme:"HIV e gestação",area:"obstetricia"},{theme:"Triagem Neonatal (Teste do Pezinho)",area:"pediatria"},{theme:"Avaliação Neonatal",area:"pediatria"},{theme:"Reanimação Neonatal",area:"pediatria"},{theme:"Hipotireoidismo e Hipertireoidismo",area:"clinica"},{theme:"Nódulo e Câncer de Tireoide",area:"clinica"},{theme:"Anemias Carenciais (Ferropriva)",area:"clinica"},{theme:"Anemias Hemolíticas",area:"clinica"},{theme:"Neoplasias Hematológicas",area:"clinica"},{theme:"Doenças Exantemáticas",area:"pediatria"},{theme:"Meningites",area:"pediatria"},{theme:"Febre Reumática",area:"clinica"},{theme:"Ética: Medicina do Trabalho",area:"preventiva"},{theme:"Processo Saúde-Doença",area:"preventiva"},{theme:"Cuidados Paliativos",area:"preventiva"},{theme:"Transtornos do Humor",area:"psiquiatria"},{theme:"Transtornos de Ansiedade",area:"psiquiatria"},{theme:"Psiquiatria Geral",area:"psiquiatria"},{theme:"Doença Inflamatória Pélvica (DIP)",area:"ginecologia"},{theme:"Sangramento Uterino Anormal",area:"ginecologia"},{theme:"Amenorreia",area:"ginecologia"},{theme:"Câncer de Ovário",area:"ginecologia"},{theme:"Endometriose",area:"ginecologia"},{theme:"Síndrome dos Ovários Policísticos",area:"ginecologia"},{theme:"Infecção do Trato Urinário (ITU)",area:"clinica"},{theme:"ITU na Gestação",area:"obstetricia"},{theme:"ITU na Infância",area:"pediatria"},{theme:"Injúria Renal Aguda (IRA)",area:"clinica"},{theme:"Doenças Glomerulares",area:"clinica"},{theme:"Urologia geral",area:"cirurgia"},{theme:"Câncer de Próstata",area:"cirurgia"},{theme:"Cirurgia de Obesidade",area:"cirurgia"},{theme:"Cirurgia Vascular",area:"cirurgia"},{theme:"Revisão de Altíssima Prevalência (Preventiva)",area:"revisao"},{theme:"Revisão de Altíssima Prevalência (Clínica)",area:"revisao"},{theme:"Revisão de Altíssima Prevalência (Cirurgia)",area:"revisao"},{theme:"Revisão de Altíssima Prevalência (G.O./PEDS)",area:"revisao"},{theme:"Otorrinolaringologia",area:"cirurgia"},{theme:"Cefaleia",area:"clinica"},{theme:"Epilepsia e convulsão febril",area:"clinica"},{theme:"Doença de Parkinson",area:"clinica"},{theme:"Lúpus",area:"clinica"},{theme:"Artrite Reumatoide",area:"clinica"},{theme:"Fibromialgia",area:"clinica"},{theme:"SIMULADO COMPLETO 1",area:"revisao"},{theme:"Correção Detalhada do Simulado 1",area:"revisao"},{theme:"Revisão de Média Prevalência (Clínica)",area:"revisao"},{theme:"Revisão de Média Prevalência (Cirurgia/G.O.)",area:"revisao"},{theme:"Revisão de Média Prevalência (Peds/Preventiva)",area:"revisao"},{theme:"Intoxicações exógenas",area:"clinica"},{theme:"Acidentes por Animais Peçonhentos",area:"clinica"},{theme:"Queimados",area:"cirurgia"},{theme:"Raiva e tétano",area:"preventiva"},{theme:"Doação de órgãos e morte encefálica",area:"preventiva"},{theme:"Geriatria",area:"clinica"},{theme:"Perioperatório - exames, medicamentos, segurança",area:"cirurgia"},{theme:"Técnica cirúrgica e Corpo estranho",area:"cirurgia"},{theme:"Distúrbios da hemostasia",area:"clinica"},{theme:"SIMULADO COMPLETO 2",area:"revisao"},{theme:"Correção Detalhada do Simulado 2",area:"revisao"},{theme:"Revisão por Fraqueza (Simulados)",area:"revisao"},{theme:"Revisão por Fraqueza (Questões)",area:"revisao"},{theme:"Infertilidade",area:"ginecologia"},{theme:"Prematuridade",area:"pediatria"},{theme:"Restrição de Crescimento Fetal",area:"obstetricia"},{theme:"Vitalidade Fetal",area:"obstetricia"},{theme:"Rotura prematura de membranas",area:"obstetricia"},{theme:"Revisão Geral Rápida (Resumos e Flashcards)",area:"revisao"},{theme:"Revisão Leve (Fórmulas, escores, algoritmos)",area:"revisao"},{theme:"SIMULADO COMPLETO 3 (Opcional)",area:"revisao"},{theme:"Correção Detalhada do Simulado 3",area:"revisao"},{theme:"Anestesia",area:"cirurgia"},{theme:"Cirurgia plástica - câncer de pele melanoma e não melanoma",area:"cirurgia"},{theme:"Sepse",area:"clinica"},{theme:"Monoartrite aguda - gota e artrite infecciosa",area:"clinica"},{theme:"Leishmaniose",area:"clinica"},{theme:"PBLS e PALS",area:"pediatria"},{theme:"Desconforto respiratório do recém-nascido",area:"pediatria"},{theme:"Distúrbios do crescimento e desenvolvimento",area:"pediatria"},{theme:"Cardiopatias congênitas",area:"pediatria"},{theme:"Isoimunização RH",area:"obstetricia"},{theme:"Patologias vulvares",area:"ginecologia"},{theme:"Saúde da Família",area:"preventiva"},{theme:"Desnutrição e obesidade",area:"clinica"},{theme:"Tumores de pâncreas",area:"cirurgia"},{theme:"Revisão Final: Pontos fracos e temas de alta prevalência",area:"revisao"},{theme:"Revisão Final: Mais pontos fracos e temas de alta prevalência",area:"revisao"},{theme:"Revisão Leve: Confiança no processo",area:"revisao"},{theme:"Descanso e Organização",area:"revisao"},{theme:"DESCANSO TOTAL",area:"revisao"}];
-
-            // CONFIGURAÇÃO DO CHATBOT MÉDICO
-            const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY'; // SUBSTITUA PELA SUA API KEY DO GEMINI
-            const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
-            const medicalChatbot = {
-                isOpen: false,
-                conversationHistory: JSON.parse(localStorage.getItem('chatbotHistory')) || [],
-                systemPrompt: "Você é um assistente de estudos para a prova de residência médica Revalida. Responda de forma objetiva, didática e direta ao ponto, como um colega experiente. Foco total em conteúdo médico relevante para a prova.",
-                async sendMessage(userMessage){try{const e=await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:this.systemPrompt+"\n\nPergunta do usuário: "+userMessage}]}],generationConfig:{temperature:.7,maxOutputTokens:800}})});if(!e.ok)throw new Error(`Erro na API: ${e.status}`);const t=await e.json();return t?.candidates?.[0]?.content?.parts?.[0]?.text||"Desculpe, não consegui processar sua pergunta. Tente novamente."}catch(e){return console.error("Erro na chamada da API Gemini:",e),"Erro de conexão com a IA. Verifique sua internet e tente novamente."}},
-                saveHistory(){localStorage.setItem('chatbotHistory',JSON.stringify(this.conversationHistory))},
-                addMessage(e,t=!1){const s={text:e,isUser:t,timestamp:(new Date).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})};this.conversationHistory.push(s),this.saveHistory(),this.renderMessage(s)},
-                renderMessage(e){const t=document.getElementById("chat-messages"),s=document.createElement("div");s.className=`message ${e.isUser?"user":"bot"}`,s.innerHTML=`\n            <div class="message-bubble">\n                ${e.text.replace(/\n/g,"<br>")}\n            </div>\n            <div class="message-time">${e.timestamp}</div>\n        `,e.isUser&&1===this.conversationHistory.filter(e=>e.isUser).length&&t.querySelector(".quick-topics")?.remove(),t.appendChild(s),t.scrollTop=t.scrollHeight},
-                showTyping(){document.getElementById("typing-indicator").classList.add("active");const e=document.getElementById("chat-messages");e.scrollTop=e.scrollHeight},
-                hideTyping(){document.getElementById("typing-indicator").classList.remove("active")},
-                async handleUserMessage(e){if(e.trim()){this.addMessage(e,!0),this.showTyping();const t=await this.sendMessage(e);this.hideTyping(),this.addMessage(t,!1),document.getElementById("chat-input").value="",this.adjustTextareaHeight()}},
-                adjustTextareaHeight(){const e=document.getElementById("chat-input");e.style.height="auto",e.style.height=Math.min(e.scrollHeight,100)+"px"},
-                toggle(){this.isOpen=!this.isOpen;const e=document.getElementById("chatbot-container"),t=document.getElementById("chatbot-toggle");e.classList.toggle("active",this.isOpen),t.classList.toggle("active",this.isOpen),this.isOpen&&(document.getElementById("chat-input").focus(),this.loadHistory())},
-                loadHistory(){const e=document.getElementById("chat-messages"),t=e.querySelector(".message.bot"),s=e.querySelector(".quick-topics");e.innerHTML="",t&&e.appendChild(t),s&&0===this.conversationHistory.filter(e=>e.isUser).length&&e.appendChild(s),this.conversationHistory.forEach(e=>{this.renderMessage(e)})},
-                init(){const e=document.getElementById("chatbot-toggle"),t=document.getElementById("chatbot-close"),s=document.getElementById("chat-send"),o=document.getElementById("chat-input");e.addEventListener("click",()=>this.toggle()),t.addEventListener("click",()=>this.toggle()),s.addEventListener("click",()=>{const e=o.value.trim();e&&this.handleUserMessage(e)}),o.addEventListener("keydown",e=>{if("Enter"===e.key&&!e.shiftKey){e.preventDefault();const t=o.value.trim();t&&this.handleUserMessage(t)}}),o.addEventListener("input",()=>this.adjustTextareaHeight()),document.querySelectorAll(".quick-topic").forEach(e=>{e.addEventListener("click",()=>{this.handleUserMessage(e.dataset.topic)})}),document.addEventListener("click",e=>{this.isOpen&&!e.target.closest(".medical-chatbot")&&this.toggle()})}
-            };
-
-            // GAMIFICAÇÃO: NÍVEIS E CONQUISTAS
-            const studentLevels = [ { title: "Estudante Iniciante", avatar: "👶", xpRequired: 0 }, { title: "Interno Virtual", avatar: "👨‍⚕️", xpRequired: 100 }, { title: "R1 Clínico", avatar: "👩‍⚕️", xpRequired: 200 }, { title: "R2 Cirúrgico", avatar: "🧑‍⚕️", xpRequired: 350 }, { title: "R3 Especialista", avatar: "👨‍🔬", xpRequired: 550 }, { title: "Especialista Júnior", avatar: "👩‍🔬", xpRequired: 800 }, { title: "Mestre em Medicina", avatar: "👩‍🎓", xpRequired: 1500 }, { title: "Lenda Médica", avatar: "🦸", xpRequired: 3300 }];
-            const XP_VALUES = { completeTopic: 15, dailyStreak: 5, pomodoroComplete: 3, performanceEntry: 20, achievementUnlocked: 50 };
-            const achievements = {
-                clinicoRaiz: { title: "Clínico Raiz", description: "Finalizou todos os temas de Clínica Médica.", icon: "fas fa-stethoscope", category: "area", check: (s) => checkAreaCompletion(s, 'clinica') },
-                goWarrior: { title: "GO Warrior", description: "Finalizou Ginecologia e Obstetrícia.", icon: "fas fa-baby-carriage", category: "area", check: (s) => checkAreaCompletion(s, 'ginecologia') && checkAreaCompletion(s, 'obstetricia') },
-                miniCirurgiao: { title: "Mini-Cirurgião", description: "Completou os temas de Cirurgia Geral.", icon: "fas fa-scalpel", category: "area", check: (s) => checkAreaCompletion(s, 'cirurgia') },
-                pediatraMirim: { title: "Pediatra Mirim", description: "Concluiu todos os temas de Pediatria.", icon: "fas fa-child", category: "area", check: (s) => checkAreaCompletion(s, 'pediatria') },
-                mestrePreventiva: { title: "Mestre da Preventiva", description: "Terminou os temas de Saúde Coletiva.", icon: "fas fa-users", category: "area", check: (s) => checkAreaCompletion(s, 'preventiva') },
-                psiquiatraHonorario: { title: "Psiquiatra Honorário", description: "Finalizou os temas de Psiquiatria.", icon: "fas fa-brain", category: "area", check: (s) => checkAreaCompletion(s, 'psiquiatria') },
-                leaoSimulado: { title: "Leão de Simulado", description: "Fez 5 registros de simulado/questões.", icon: "fas fa-award", category: "produtividade", check: (s) => s.performanceLog.length >= 5 },
-                focoTotal: { title: "Foco Total", description: "Usou o Pomodoro por 10 ciclos completos.", icon: "fas fa-clock", category: "produtividade", check: (s) => s.userProfile.completedPomodoros >= 10 },
-                chatbotExplorer: { title: "Explorador IA", description: "Fez 10 perguntas para a IA médica.", icon: "fas fa-robot", category: "produtividade", check: () => (JSON.parse(localStorage.getItem('chatbotHistory')) || []).filter(m => m.isUser).length >= 10 },
-                streak5: { title: "5 Dias no Ritmo", description: "Cinco dias seguidos estudando.", icon: "fas fa-fire", category: "consistencia", check: (s) => s.userProfile.studyStreak >= 5 },
-                streak14: { title: "Study Beast", description: "14 dias seguidos sem falhar.", icon: "fas fa-meteor", category: "consistencia", check: (s) => s.userProfile.studyStreak >= 14 },
-            };
-
-            // FUNÇÃO CENTRALIZADA PARA SALVAR E CHECAR CONQUISTAS
-            function saveAndCheck(eventData = null) {
-                checkAllAchievements(eventData);
-                saveProgressToFirestore(); // A principal mudança é chamar a função de salvar no Firestore
-            }
-
-            // FUNÇÕES DE LÓGICA DO CRONOGRAMA
-            function prepareAllTopics() { appState.allTopicsFlat = [...originalScheduleData, ...appState.customThemes]; }
-            function regenerateAndRenderSchedule() { prepareAllTopics(); const studyDays = getStudyDays(appState.scheduleConfig.startDate, appState.scheduleConfig.examDate); const distributionResult = distributeTopics(appState.allTopicsFlat, studyDays, appState.scheduleConfig.maxTopicsPerDay); const newSchedule = buildNewSchedule(distributionResult.distributedDays); generateDynamicWeeks(newSchedule); updateAllStatsAndCharts(); }
-            function getStudyDays(startDateStr, endDateStr) { const studyDays = []; let currentDate = new Date(`${startDateStr}T12:00:00Z`); const endDate = new Date(`${endDateStr}T12:00:00Z`); while (currentDate <= endDate) { if (currentDate.getUTCDay() !== 0) { studyDays.push(new Date(currentDate)); } currentDate.setUTCDate(currentDate.getUTCDate() + 1); } return studyDays; }
-            function distributeTopics(topics, studyDays, maxTopicsPerDay) { let topicIndex = 0; const distributedDays = []; for (let dayIndex = 0; dayIndex < studyDays.length; dayIndex++) { const weekIndex = Math.floor(dayIndex / 6); const topicsForThisDay = Math.min(weekIndex + 1, maxTopicsPerDay); const assignedTopics = []; if (topicIndex < topics.length) { for (let i = 0; i < topicsForThisDay && topicIndex < topics.length; i++) { assignedTopics.push(topics[topicIndex]); topicIndex++; } } distributedDays.push({ date: studyDays[dayIndex], topics: assignedTopics }); } return { distributedDays: distributedDays.filter(d => d.topics.length > 0) }; }
-            function buildNewSchedule(distributedDays) { if (!distributedDays || distributedDays.length === 0) return []; const newSchedule = []; let weekChunk = []; distributedDays.sort((a, b) => a.date - b.date); for (const day of distributedDays) { if (weekChunk.length > 0 && day.date.getUTCDay() === 1) { newSchedule.push(weekChunk); weekChunk = []; } weekChunk.push(day); } if (weekChunk.length > 0) newSchedule.push(weekChunk); return newSchedule.map((weekDays, index) => { const dayMap = new Map(weekDays.map(d => [d.date.getUTCDay(), d])); let firstDayOfWeek = new Date(weekDays[0].date); firstDayOfWeek.setUTCDate(firstDayOfWeek.getUTCDate() - (firstDayOfWeek.getUTCDay() - 1)); const fullWeekDays = []; for (let i = 1; i <= 7; i++) { const currentDay = new Date(firstDayOfWeek); currentDay.setUTCDate(firstDayOfWeek.getUTCDate() + i - 1); const dayData = dayMap.get(currentDay.getUTCDay()); if (currentDay.getUTCDay() === 0) { fullWeekDays.push({ date: currentDay, themes: [{ theme: 'DESCANSO', area: 'rest' }], isRest: true }); } else { fullWeekDays.push({ date: currentDay, themes: dayData ? dayData.topics : [], isRest: false }); } } const weekStartDate = fullWeekDays[0].date; const weekEndDate = fullWeekDays[5].date; return { week: index + 1, title: `Semana ${index + 1}: ${formatDate(weekStartDate)} - ${formatDate(weekEndDate)}`, days: fullWeekDays }; }); }
-
-            // GAMIFICAÇÃO: LÓGICA E CHECAGEM
-            function addXp(points, source = 'generic') { const oldLevel = getUserLevel(); appState.userProfile.xp += points; const newLevel = getUserLevel(); if (newLevel > oldLevel) { appState.userProfile.level = newLevel; showLevelUpNotification(newLevel); addXp(newLevel * 10, 'level-up'); } updateHeaderUI(); /* A chamada para salvar foi movida para saveAndCheck */ }
-            function getUserLevel() { for (let i = studentLevels.length - 1; i >= 0; i--) { if (appState.userProfile.xp >= studentLevels[i].xpRequired) { return i; } } return 0; }
-            function showLevelUpNotification(newLevel) { /* ... (código mantido) ... */ }
-            function updateHeaderUI() { const currentLevel = getUserLevel(); const levelData = studentLevels[currentLevel]; const nextLevel = currentLevel < studentLevels.length - 1 ? studentLevels[currentLevel + 1] : null; const progressPercentage = nextLevel ? Math.round(((appState.userProfile.xp - levelData.xpRequired) / (nextLevel.xpRequired - levelData.xpRequired)) * 100) : 100; document.getElementById('user-level').innerHTML = `<div class="level-container"><div class="level-avatar">${levelData.avatar}</div><div><div>${levelData.title}</div><div class="level-badge">Nível ${currentLevel}</div></div></div>`; document.getElementById('xp-bar-fill').style.width = `${progressPercentage}%`; document.getElementById('xp-bar-fill').parentElement.title = `${appState.userProfile.xp} XP (${progressPercentage}% para o próximo nível)`; document.getElementById('streak-count').textContent = appState.userProfile.studyStreak; }
-            function unlockAchievement(key) { if (!appState.userProfile.unlockedAchievements[key]) { addXp(XP_VALUES.achievementUnlocked, 'achievement'); appState.userProfile.unlockedAchievements[key] = new Date().toISOString(); showAchievementNotification(achievements[key]); if (appState.currentSection === 'achievements') { renderAchievementsPage(); } } }
-            function showAchievementNotification(achievement) { const notification = document.getElementById('achievement-notification'); notification.querySelector('#achievement-icon').className = `${achievement.icon} fa-2x`; notification.querySelector('#achievement-title').textContent = achievement.title; notification.querySelector('#achievement-desc').textContent = achievement.description; notification.classList.add('show'); setTimeout(() => notification.classList.remove('show'), 5000); }
-            function checkAllAchievements(eventData = null) { for (const key in achievements) { if (!appState.userProfile.unlockedAchievements[key]) { if (achievements[key].check(appState, eventData)) { unlockAchievement(key); } } } /* A chamada para salvar foi movida para saveAndCheck */ }
-            function renderAchievementsPage() { const container = document.getElementById('achievements-grid'); if (!container) return; const categories = { area: [], produtividade: [], consistencia: [] }; for (const key in achievements) { categories[achievements[key].category].push({ key, ...achievements[key] }); } container.innerHTML = Object.keys(categories).map(catKey => { if (categories[catKey].length === 0) return ''; const categoryName = catKey.charAt(0).toUpperCase() + catKey.slice(1); const itemsHtml = categories[catKey].map(item => { const unlocked = appState.userProfile.unlockedAchievements[item.key]; const unlockedDate = unlocked ? `Desbloqueado em: ${new Date(unlocked).toLocaleDateString('pt-BR')}` : ''; return `<div class="achievement-item ${unlocked ? 'unlocked' : ''}" title="${item.description}"><i class="achievement-icon ${item.icon}"></i><div class="achievement-details"><h4>${item.title}</h4><p>${item.description}</p><p class="unlock-date">${unlockedDate}</p></div></div>`; }).join(''); return `<div class="achievement-category"><h3>${categoryName}</h3>${itemsHtml}</div>`; }).join(''); }
-            function checkAreaCompletion(state, area) { const topicsOfArea = state.allTopicsFlat.filter(t => t.area === area); if (topicsOfArea.length === 0) return false; return topicsOfArea.every(t => state.completedTopics[t.theme]); }
-
-            // UI GERAL E INTERAÇÕES
-            function toggleSidebar() { appState.sidebarOpen = !appState.sidebarOpen; document.getElementById('sidebar').classList.toggle('open'); document.getElementById('main-content').classList.toggle('sidebar-open'); document.getElementById('header').classList.toggle('sidebar-open'); /* Não salvamos isso no Firestore */ }
-            function toggleTheme() { appState.darkMode = !appState.darkMode; document.documentElement.setAttribute('data-theme', appState.darkMode ? 'dark' : ''); document.querySelector('#theme-toggle i').className = appState.darkMode ? 'fas fa-sun' : 'fas fa-moon'; saveProgressToFirestore(); updateAllStatsAndCharts(); }
-            function toggleMinimalistMode() { appState.minimalistMode = !appState.minimalistMode; document.body.classList.toggle('minimalist-mode', appState.minimalistMode); document.querySelector('#minimalist-toggle i').className = appState.minimalistMode ? 'fas fa-expand' : 'fas fa-compress'; saveProgressToFirestore(); }
-            function showModal(modalId) { document.getElementById(modalId).classList.add('active'); }
-            function hideModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
-            function showSection(sectionId) { document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active')); const section = document.getElementById(`${sectionId}-section`); if (section) { section.classList.add('active'); appState.currentSection = sectionId; } window.scrollTo(0, 0); if (sectionId === 'stats') updateAllStatsAndCharts(); if (sectionId === 'achievements') renderAchievementsPage(); if (sectionId === 'performance') { updateStats(); populatePerformanceTopicSelect(); renderPerformanceHistory(); } if (sectionId === 'progress') updateProgressLists(); if (sectionId === 'review') updateFutureReviews(); }
-            function updateAllStatsAndCharts() { updateStats(); updateStatusIcons(); if (appState.currentSection === 'stats') { createCompletionChart(); createPerformanceByAreaChart(); } }
-            
-            // FUNÇÕES DE EVENTOS E LÓGICA
-            function addTopicEventListeners() { document.querySelectorAll('.topic-checkbox').forEach(checkbox => { checkbox.addEventListener('change', function () { const topic = this.dataset.topic; const isChecked = this.checked; document.querySelectorAll(`input.topic-checkbox[data-topic="${topic}"]`).forEach(box => { const text = box.closest('.topic-row').querySelector('.topic-text'); box.checked = isChecked; text.classList.toggle('completed', isChecked); }); if (isChecked) { appState.completedTopics[topic] = true; appState.lastReviewDates[topic] = new Date().toISOString(); showModal('difficulty-modal'); appState.currentDifficultyTopic = topic; addXp(XP_VALUES.completeTopic, 'topic-complete'); updateStudyStreak(); } else { delete appState.completedTopics[topic]; delete appState.lastReviewDates[topic]; delete appState.topicDifficulties[topic]; } saveAndCheck({ type: 'completion', topic: topic }); updateAllStatsAndCharts(); }); }); }
-            function updateStudyStreak() { const today = new Date().toISOString().slice(0, 10); const lastDate = appState.userProfile.lastStudyDate; if (!lastDate || lastDate !== today) { const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); if (lastDate === yesterday.toISOString().slice(0, 10)) { appState.userProfile.studyStreak++; addXp(XP_VALUES.dailyStreak * appState.userProfile.studyStreak, 'streak'); } else { appState.userProfile.studyStreak = 1; } appState.userProfile.lastStudyDate = today; } }
-            function generateDynamicWeeks(schedule) { const weeksContainer = document.getElementById('weeks'); weeksContainer.innerHTML = ''; if (!schedule || schedule.length === 0) { weeksContainer.innerHTML = '<p style="text-align: center; padding: 20px;">Nenhum cronograma para exibir.</p>'; return; } const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']; schedule.forEach(week => { const weekElement = document.createElement('div'); weekElement.className = 'week-section fade-in'; const maxThemesInWeek = Math.max(0, ...week.days.map(d => d.isRest ? 0 : (d.themes ? d.themes.length : 0))); let tableHeaderHTML = `<thead><tr><th>Dia</th>${Array.from({length: maxThemesInWeek}, (_, i) => `<th>Tema ${i+1}</th>`).join('')}</tr></thead>`; let tableBodyHTML = '<tbody>'; week.days.forEach(day => { const dayName = dayNames[day.date.getUTCDay()]; if (day.isRest) { tableBodyHTML += `<tr class="rest-day"><td colspan="${1 + maxThemesInWeek}">${day.themes[0].theme}</td></tr>`; } else { tableBodyHTML += `<tr><td><b>${dayName}</b><br>${formatDate(day.date)}</td>`; if (day.themes.length > 0) { for (let i = 0; i < maxThemesInWeek; i++) { const topic = day.themes[i]; if (topic) { const topicId = (topic.theme + i).replace(/[^a-zA-Z0-9]/g, ""); tableBodyHTML += `<td><div class="topic-row"><input type="checkbox" class="topic-checkbox" id="chk-${topicId}" ${appState.completedTopics[topic.theme] ? "checked" : ""} data-topic="${topic.theme}"><label class="topic-text ${appState.completedTopics[topic.theme] ? "completed" : ""}" for="chk-${topicId}">${topic.theme}</label><span class="area-badge area-${topic.area}">${getAreaName(topic.area)}</span><button class="btn-ia" onclick="gerarFlashcardIA('${topic.theme.replace(/'/g, "\\'")}')">🤖 IA</button></div></td>`; } else { tableBodyHTML += '<td>-</td>'; } } } else { tableBodyHTML += `<td colspan="${maxThemesInWeek}"><i>Dia livre</i></td>`; } tableBodyHTML += '</tr>'; } }); tableBodyHTML += '</tbody>'; weekElement.innerHTML = `<div class="week-header"><span>${week.title}</span><i class="fas fa-chevron-down"></i></div><div class="week-content"><table class="week-table">${tableHeaderHTML}${tableBodyHTML}</table></div>`; weeksContainer.appendChild(weekElement); weekElement.querySelector('.week-header').addEventListener('click', function () { this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('i').className = this.nextElementSibling.classList.contains('collapsed') ? 'fas fa-chevron-right' : 'fas fa-chevron-down'; }); }); addTopicEventListeners(); updateStatusIcons(); }
-            
-            // DEMAIS FUNÇÕES (mantidas)
-            function getAreaName(area) { const names = { preventiva: "PREV", pediatria: "PED", ginecologia: "GIN", obstetricia: "OBS", clinica: "CLM", cirurgia: "CIR", psiquiatria: "PSI", revisao: "REV", rest: "Off" }; return names[area] || "Geral"; }
-            function getAreaIcon(area) { const icons = { preventiva: "fas fa-users", pediatria: "fas fa-baby", ginecologia: "fas fa-venus", obstetricia: "fas fa-baby-carriage", clinica: "fas fa-stethoscope", cirurgia: "fas fa-scalpel", psiquiatria: "fas fa-brain", revisao: "fas fa-star", rest: "fas fa-couch" }; return icons[area] || "fas fa-book-medical"; }
-            function formatDate(date) { if (!(date instanceof Date) || isNaN(date)) return ""; const userTimezoneOffset = date.getTimezoneOffset() * 60000; return new Date(date.getTime() + userTimezoneOffset).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }); }
-            function startPomodoro(){if(!appState.pomodoroRunning){appState.pomodoroRunning=!0;appState.pomodoroInterval=setInterval(updatePomodoro,1e3);document.getElementById("pomodoro-start").disabled=!0;document.getElementById("pomodoro-pause").disabled=!1}}
-            function pausePomodoro(){if(appState.pomodoroRunning){clearInterval(appState.pomodoroInterval);appState.pomodoroRunning=!1;document.getElementById("pomodoro-start").disabled=!1;document.getElementById("pomodoro-pause").disabled=!0}}
-            function resetPomodoro(){const e="focus"===appState.currentPomodoroType;pausePomodoro();const t=parseInt(document.getElementById(e?"focus-time":"break-time").value)|| (e?25:5);appState.pomodoroTime=60*t,updatePomodoroDisplay(),document.getElementById("pomodoro-start").disabled=!1,document.getElementById("pomodoro-pause").disabled=!0}
-            function updatePomodoro(){appState.pomodoroTime--,updatePomodoroDisplay(),appState.pomodoroTime<0&&("focus"===appState.currentPomodoroType?(appState.userProfile.completedPomodoros++,addXp(XP_VALUES.pomodoroComplete,"pomodoro"),appState.currentPomodoroType="break",alert("Foco finalizado! Hora da pausa.")):(appState.currentPomodoroType="focus",alert("Pausa finalizada! Hora de focar.")),saveAndCheck(),resetPomodoro())}
-            function updatePomodoroDisplay() { const minutes = Math.floor(appState.pomodoroTime / 60); const seconds = appState.pomodoroTime % 60; document.getElementById('pomodoro-display').textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`; }
-            function updateStats() { prepareAllTopics(); const totalTopics = appState.allTopicsFlat.filter(t => t.area !== 'rest' && t.area !== 'revisao').length; const completedCount = Object.keys(appState.completedTopics).length; const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0; document.getElementById('completed-count').textContent = completedCount; document.getElementById('progress-fill').style.width = `${percentage}%`; document.getElementById('progress-percentage').textContent = `${percentage}% de ${totalTopics} temas`; updateCountdown(); updateAverageDifficulty(); }
-            function updateCountdown() { const examDate = new Date(`${appState.scheduleConfig.examDate}T12:00:00Z`); const today = new Date(); const diffTime = examDate - today; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); document.getElementById('days-left').textContent = diffDays > 0 ? diffDays : 0; }
-            function updateAverageDifficulty() { const difficulties = Object.values(appState.topicDifficulties); if (difficulties.length === 0) { document.getElementById('avg-difficulty').textContent = '-'; return; } const difficultyMap = { easy: 1, medium: 2, hard: 3 }; const avg = difficulties.reduce((sum, diff) => sum + difficultyMap[diff], 0) / difficulties.length; document.getElementById('avg-difficulty').textContent = avg < 1.5 ? 'Fácil' : avg < 2.5 ? 'Médio' : 'Difícil'; }
-            function updateStatusIcons() { document.querySelectorAll('.topic-checkbox').forEach(checkbox => { const topic = checkbox.dataset.topic; if (appState.completedTopics[topic]) { checkbox.checked = true; checkbox.closest('.topic-row').querySelector('.topic-text').classList.add('completed'); } else { checkbox.checked = false; checkbox.closest('.topic-row').querySelector('.topic-text').classList.remove('completed'); } }); }
-            function createCompletionChart(){const t=document.getElementById("graficoPorMateria")?.getContext("2d");if(t&&document.getElementById("stats-section").classList.contains("active")){appState.charts.completionBySubject&&appState.charts.completionBySubject.destroy();const e={},a=["preventiva","pediatria","ginecologia","obstetricia","clinica","cirurgia","psiquiatria","revisao"];a.forEach(t=>{e[t]={total:0,feitos:0,cor:getComputedStyle(document.documentElement).getPropertyValue(`--area-${t}`).trim()||"#607D8B",nome:getAreaName(t)}}),appState.allTopicsFlat.forEach(t=>{e[t.area]&&(e[t.area].total++,appState.completedTopics[t.theme]&&e[t.area].feitos++)});const s=[],o=[],r=[];for(let t in e)e[t].total>0&&(s.push(e[t].nome),o.push(Math.round(e[t].feitos/e[t].total*100)),r.push(e[t].cor));const i=appState.darkMode,n=i?"rgba(255, 255, 255, 0.1)":"rgba(0, 0, 0, 0.05)",l=i?"#f5f5f5":"#666";appState.charts.completionBySubject=new Chart(t,{type:"bar",data:{labels:s,datasets:[{label:"% Concluído",data:o,backgroundColor:r,borderRadius:5}]},options:{responsive:!0,maintainAspectRatio:!1,indexAxis:"y",plugins:{legend:{display:!1}},scales:{y:{ticks:{color:l},grid:{display:!1}},x:{beginAtZero:!0,max:100,ticks:{color:l,callback:t=>`${t}%`},grid:{color:n}}}}})}}
-            function createPerformanceByAreaChart() { /* ... (código mantido) ... */ }
-            function updateProgressLists() { /* ... (código mantido) ... */ }
-            function updateFutureReviews() { /* ... (código mantido) ... */ }
-            function populatePerformanceTopicSelect() { const select = document.getElementById('perf-topic-select'); if (!select) return; const areas = {}; appState.allTopicsFlat.forEach(topic => { if (topic.area === 'rest') return; if (!areas[topic.area]) areas[topic.area] = []; areas[topic.area].push(topic.theme); }); select.innerHTML = '<option value="">Selecione um tema...</option>'; for (const areaId in areas) { const optgroup = document.createElement('optgroup'); optgroup.label = getAreaName(areaId).toUpperCase(); areas[areaId].sort().forEach(themeName => { const option = document.createElement('option'); option.value = themeName; option.textContent = themeName; optgroup.appendChild(option); }); select.appendChild(optgroup); } }
-            function savePerformanceEntry() { const date = document.getElementById('perf-date').value; const topic = document.getElementById('perf-topic-select').value; const attempted = parseInt(document.getElementById('perf-questions-attempted').value); const correct = parseInt(document.getElementById('perf-questions-correct').value); if (!date || !topic || isNaN(attempted) || isNaN(correct) || correct > attempted || attempted <= 0) { alert('Preencha todos os campos corretamente.'); return; } const newEntry = { id: Date.now(), date, topic, attempted, correct }; appState.performanceLog.push(newEntry); addXp(XP_VALUES.performanceEntry, 'performance'); updateStudyStreak(); saveAndCheck({ type: 'simulado' }); renderPerformanceHistory(); document.getElementById('perf-topic-select').value = ""; document.getElementById('perf-questions-attempted').value = ""; document.getElementById('perf-questions-correct').value = ""; alert('Registro salvo!'); }
-            function renderPerformanceHistory() { const container = document.getElementById('performance-history-container'); if (!container) return; if (appState.performanceLog.length === 0) { container.innerHTML = '<p class="config-hint" style="text-align: center; padding: 20px;">Nenhum registro de desempenho.</p>'; return; } let tableHTML = `<table class="performance-table"><thead><tr><th>Data</th><th>Tema</th><th>Área</th><th>Questões</th><th>Acertos</th><th>%</th><th>Ações</th></tr></thead><tbody>`; [...appState.performanceLog].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(entry => { const topicDetails = appState.allTopicsFlat.find(t => t.theme === entry.topic); const area = topicDetails ? topicDetails.area : 'N/A'; const percentage = Math.round((entry.correct / entry.attempted) * 100); let percClass = percentage >= 80 ? 'good' : percentage < 60 ? 'bad' : 'medium'; tableHTML += `<tr><td>${formatDate(new Date(entry.date + 'T12:00:00Z'))}</td><td>${entry.topic}</td><td><span class="area-badge area-${area}">${getAreaName(area)}</span></td><td>${entry.attempted}</td><td>${entry.correct}</td><td class="percentage-col ${percClass}">${percentage}%</td><td><button class="btn btn-danger delete-perf-entry" data-id="${entry.id}"><i class="fas fa-trash"></i></button></td></tr>`; }); tableHTML += '</tbody></table>'; container.innerHTML = tableHTML; document.querySelectorAll('.delete-perf-entry').forEach(btn => { btn.addEventListener('click', function () { if (confirm('Tem certeza?')) { appState.performanceLog = appState.performanceLog.filter(entry => entry.id !== parseInt(this.dataset.id)); renderPerformanceHistory(); saveProgressToFirestore(); } }); }); }
-            function applyConfigurations() { const startDate = document.getElementById('start-date').value; const examDate = document.getElementById('exam-date').value; const maxTopicsPerDay = parseInt(document.getElementById('max-topics-day').value); if (!startDate || !examDate || isNaN(maxTopicsPerDay) || new Date(startDate) >= new Date(examDate)) { alert('Verifique as configurações.'); return; } appState.scheduleConfig = { startDate, examDate, maxTopicsPerDay }; saveProgressToFirestore(); regenerateAndRenderSchedule(); alert('Cronograma atualizado!'); showSection('weeks'); }
-            function addCustomTheme() { const nameInput = document.getElementById('custom-theme-name'); const themeName = nameInput.value.trim(); const themeArea = document.getElementById('custom-theme-area').value; if (!themeName) return alert('Digite o nome do tema.'); if ([...originalScheduleData, ...appState.customThemes].some(t => t.theme.toLowerCase() === themeName.toLowerCase())) return alert('Tema já existe.'); appState.customThemes.push({ theme: themeName, area: themeArea }); saveProgressToFirestore(); nameInput.value = ""; renderCustomThemesList(); }
-            function removeCustomTheme(themeNameToRemove) { appState.customThemes = appState.customThemes.filter(theme => theme.theme !== themeNameToRemove); saveProgressToFirestore(); renderCustomThemesList(); }
-            function renderCustomThemesList() { const list = document.getElementById('custom-themes-list'); list.innerHTML = '<h5>Seus Temas:</h5>'; if(appState.customThemes.length === 0) { list.innerHTML = '<p class="config-hint">Nenhum tema personalizado.</p>'; return; } appState.customThemes.forEach(theme => { const item = document.createElement('div'); item.className = 'custom-theme-item'; item.innerHTML = `<span><span class="area-badge area-${theme.area}">${getAreaName(theme.area)}</span> ${theme.theme}</span><button class="btn btn-danger" data-theme-name="${theme.theme}"><i class="fas fa-times"></i></button>`; item.querySelector('button').onclick = () => removeCustomTheme(theme.theme); list.appendChild(item); }); }
-            window.markAsReviewed = function (topic) { appState.lastReviewDates[topic] = new Date().toISOString(); addXp(5); updateStudyStreak(); saveAndCheck({ type: 'review', topic: topic }); if (appState.currentSection === 'review') updateFutureReviews(); };
-            window.gerarFlashcardIA = async function(tema) { /* ... (código mantido) ... */ }
-
-            // INICIALIZAÇÃO DA INTERFACE DA APLICAÇÃO
-            function initializeEventListeners() {
-                document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
-                document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-                document.getElementById('minimalist-toggle').addEventListener('click', toggleMinimalistMode);
-                document.getElementById('pomodoro-start').addEventListener('click', startPomodoro);
-                document.getElementById('pomodoro-pause').addEventListener('click', pausePomodoro);
-                document.getElementById('pomodoro-reset').addEventListener('click', resetPomodoro);
-                document.querySelectorAll('.sidebar-menu a[data-section]').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); showSection(link.dataset.section); }); });
-                document.getElementById('reset-progress').addEventListener('click', () => showModal('confirmation-modal'));
-                document.getElementById('confirm-reset').addEventListener('click', () => { 
-                    appState.completedTopics = {};
-                    appState.topicDifficulties = {};
-                    appState.lastReviewDates = {};
-                    appState.performanceLog = [];
-                    appState.userProfile = { xp: 0, level: 0, unlockedAchievements: {}, lastStudyDate: null, studyStreak: 0, completedPomodoros: 0 };
-                    saveAndCheck({type: 'reset'});
-                    hideModal('confirmation-modal');
-                    regenerateAndRenderSchedule();
-                    alert("Progresso resetado!");
-                });
-                document.getElementById('cancel-reset').addEventListener('click', () => hideModal('confirmation-modal'));
-                document.getElementById('apply-config').addEventListener('click', applyConfigurations);
-                document.getElementById('add-custom-theme-btn').addEventListener('click', addCustomTheme);
-                document.getElementById('save-performance-entry').addEventListener('click', savePerformanceEntry);
-                document.getElementById('search-box').addEventListener('input', (e) => filterWeeks(e.target.value, document.getElementById('area-filter').value));
-                document.getElementById('area-filter').addEventListener('change', (e) => filterWeeks(document.getElementById('search-box').value, e.target.value));
-                document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                    btn.addEventListener('click', function () {
-                        const difficulty = this.dataset.difficulty;
-                        if (appState.currentDifficultyTopic) {
-                            appState.topicDifficulties[appState.currentDifficultyTopic] = difficulty;
-                            saveAndCheck({ type: 'difficulty', topic: appState.currentDifficultyTopic });
-                            updateAllStatsAndCharts();
-                        }
-                        hideModal('difficulty-modal');
-                    });
-                });
-            }
-
-            function filterWeeks(searchTerm, areaFilter) {
-                const term = searchTerm.toLowerCase();
-                document.querySelectorAll('.week-section .topic-row').forEach(row => {
-                    const topicText = row.querySelector('.topic-text').textContent.toLowerCase();
-                    const topicArea = row.parentElement.parentElement.querySelector('.area-badge').classList[1].replace('area-', '');
-                    
-                    const matchesSearch = topicText.includes(term);
-                    const matchesArea = areaFilter === 'all' || topicArea === areaFilter;
-
-                    row.style.display = (matchesSearch && matchesArea) ? '' : 'none';
-                });
-            }
-
-            // PONTO DE ENTRADA DA APLICAÇÃO APÓS LOGIN
-            if (appState.darkMode) { document.documentElement.setAttribute('data-theme', 'dark'); document.querySelector('#theme-toggle i').className = 'fas fa-sun'; }
-            if (appState.minimalistMode) { document.body.classList.toggle('minimalist-mode', true); document.querySelector('#minimalist-toggle i').className = 'fas fa-expand'; }
-            document.getElementById('start-date').value = appState.scheduleConfig.startDate;
-            document.getElementById('exam-date').value = appState.scheduleConfig.examDate;
-            document.getElementById('max-topics-day').value = appState.scheduleConfig.maxTopicsPerDay;
-            document.getElementById('perf-date').value = new Date().toISOString().split('T')[0];
-
-            initializeEventListeners();
-            medicalChatbot.init();
-            prepareAllTopics();
-            regenerateAndRenderSchedule();
-            resetPomodoro();
-            updateHeaderUI();
-            renderCustomThemesList();
-            checkAllAchievements({ type: 'load' });
-            showSection('stats');
-        } 
+        const weekStartDate = fullWeekDays[0].date;
+        const weekEndDate = fullWeekDays[5].date;
+        return {
+            week: index + 1,
+            title: `Semana ${index + 1}: ${formatDate(weekStartDate)} - ${formatDate(weekEndDate)}`,
+            days: fullWeekDays
+        };
     });
-    </script>
+}
+
+// GAMIFICAÇÃO: LÓGICA E CHECAGEM
+// ---------------------------------------------------------------------------------
+function addXp(points, source = 'generic') {
+    const oldLevel = getUserLevel();
+    appState.userProfile.xp += points;
+    
+    // Verificar se subiu de nível
+    const newLevel = getUserLevel();
+    if (newLevel > oldLevel) {
+        appState.userProfile.level = newLevel;
+        showLevelUpNotification(newLevel);
+        
+        // XP bônus por subir de nível
+        addXp(newLevel * 10, 'level-up');
+    }
+    
+    saveUserProfile();
+    updateHeaderUI();
+}
+
+function getUserLevel() {
+    for (let i = studentLevels.length - 1; i >= 0; i--) {
+        if (appState.userProfile.xp >= studentLevels[i].xpRequired) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+function showLevelUpNotification(newLevel) {
+    const levelData = studentLevels[newLevel];
+    const notification = document.createElement('div');
+    notification.className = 'level-up-notification';
+    notification.innerHTML = `
+        <div class="level-up-content">
+            <div class="level-avatar">${levelData.avatar}</div>
+            <h3>🎉 Level Up!</h3>
+            <h4>${levelData.title}</h4>
+            <p>${levelData.description}</p>
+            <small>Próximo nível em ${studentLevels[newLevel+1]?.xpRequired - appState.userProfile.xp || '---'} XP</small>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.classList.add('show');
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 3000);
+    }, 100);
+}
+
+function updateHeaderUI() {
+    const currentLevel = getUserLevel();
+    const levelData = studentLevels[currentLevel];
+    const nextLevel = currentLevel < studentLevels.length - 1 ? studentLevels[currentLevel + 1] : null;
+    const xpToNextLevel = nextLevel ? nextLevel.xpRequired - appState.userProfile.xp : 0;
+    const progressPercentage = nextLevel ? 
+        Math.round(((appState.userProfile.xp - levelData.xpRequired) / (nextLevel.xpRequired - levelData.xpRequired)) * 100) : 
+        100;
+        
+    document.getElementById('user-level').innerHTML = `
+        <div class="level-container">
+            <div class="level-avatar">${levelData.avatar}</div>
+            <div>
+                <div>${levelData.title}</div>
+                <div class="level-info">${levelData.description}</div>
+            </div>
+            <div class="level-badge">Nível ${currentLevel}</div>
+        </div>
+    `;
+    
+    document.getElementById('xp-bar-fill').style.width = `${progressPercentage}%`;
+    document.getElementById('xp-bar-fill').parentElement.title = 
+        `${appState.userProfile.xp} XP (${progressPercentage}% para o próximo nível)`;
+    document.getElementById('streak-count').textContent = appState.userProfile.studyStreak;
+}
+
+function unlockAchievement(key) {
+    if (!appState.userProfile.unlockedAchievements[key]) {
+        addXp(XP_VALUES.achievementUnlocked, 'achievement'); // Adicionado
+        appState.userProfile.unlockedAchievements[key] = new Date().toISOString();
+        showAchievementNotification(achievements[key]);
+        if (appState.currentSection === 'achievements') {
+            renderAchievementsPage();
+        }
+    }
+}
+function checkAllAchievements(eventData = null) {
+    for (const key in achievements) {
+        if (!appState.userProfile.unlockedAchievements[key]) {
+            if (achievements[key].check(appState, eventData)) {
+                unlockAchievement(key);
+            }
+        }
+    }
+    saveUserProfile();
+}
+
+function saveUserProfile() {
+    localStorage.setItem('userProfile', JSON.stringify(appState.userProfile));
+    updateHeaderUI();
+}
+
+function saveAndCheck(eventData = null) {
+    saveUserProfile();
+    checkAllAchievements(eventData);
+}
+
+function renderAchievementsPage() {
+    const container = document.getElementById('achievements-grid');
+    if (!container) return;
+    const categories = { area: [], produtividade: [], consistencia: [], metas: [], revisao: [], secretas: [] };
+    for (const key in achievements) {
+        categories[achievements[key].category].push({ key, ...achievements[key] });
+    }
+    container.innerHTML = Object.keys(categories).map(catKey => {
+        if (categories[catKey].length === 0) return '';
+        const categoryName = catKey.charAt(0).toUpperCase() + catKey.slice(1);
+        const itemsHtml = categories[catKey].map(item => {
+            const unlocked = appState.userProfile.unlockedAchievements[item.key];
+            const unlockedDate = unlocked ? `Desbloqueado em: ${new Date(unlocked).toLocaleDateString('pt-BR')}` : '';
+            return `<div class="achievement-item ${unlocked ? 'unlocked' : ''}" title="${item.description}"><i class="achievement-icon ${item.icon}"></i><div class="achievement-details"><h4>${item.title}</h4><p>${item.description}</p><p class="unlock-date">${unlockedDate}</p></div></div>`;
+        }).join('');
+        return `<div class="achievement-category"><h3>${categoryName}</h3>${itemsHtml}</div>`;
+    }).join('');
+}
+
+function checkAreaCompletion(state, area) { const topicsOfArea = state.allTopicsFlat.filter(t => t.area === area); if (topicsOfArea.length === 0) return false; return topicsOfArea.every(t => state.completedTopics[t.theme]); }
+function checkWeekdayStreak() { const today = new Date(); if (today.getDay() === 0 || today.getDay() === 6) return false; const weekStart = new Date(today); weekStart.setDate(today.getDate() - today.getDay() + 1); let studiedDays = new Set(); Object.values(appState.lastReviewDates).forEach(d => { const studyDate = new Date(d); if (studyDate >= weekStart && studyDate <= today) { studiedDays.add(studyDate.getDay()); } }); return studiedDays.size >= today.getDay(); }
+function checkCurrentWeekCompletion() { const today = new Date(); const weekNum = Math.floor((today - new Date(appState.scheduleConfig.startDate)) / (1000 * 60 * 60 * 24 * 7)) + 1; const schedule = buildNewSchedule(distributeTopics(appState.allTopicsFlat, getStudyDays(appState.scheduleConfig.startDate, appState.scheduleConfig.examDate), appState.scheduleConfig.maxTopicsPerDay).distributedDays); const weekData = schedule.find(w => w.week === weekNum); if (!weekData) return false; return weekData.days.every(d => { if (d.isRest) return true; return d.themes.every(t => appState.completedTopics[t.theme]); }); }
+function checkStudyAndSimuladoToday(state) { const todayStr = new Date().toISOString().split('T')[0]; const studiedToday = Object.values(state.lastReviewDates).some(d => d.startsWith(todayStr)); const simuladoToday = state.performanceLog.some(p => p.date === todayStr); return studiedToday && simuladoToday; }
+
+// UI GERAL E INTERAÇÕES
+// ---------------------------------------------------------------------------------
+function toggleSidebar() { appState.sidebarOpen = !appState.sidebarOpen; appState.sidebarCollapsed = false; document.getElementById('sidebar').classList.toggle('open'); document.getElementById('main-content').classList.toggle('sidebar-open'); document.getElementById('header').classList.toggle('sidebar-open'); }
+function toggleTheme() { appState.darkMode = !appState.darkMode; document.documentElement.setAttribute('data-theme', appState.darkMode ? 'dark' : ''); localStorage.setItem('darkMode', appState.darkMode); document.querySelector('#theme-toggle i').className = appState.darkMode ? 'fas fa-sun' : 'fas fa-moon'; updateAllStatsAndCharts(); }
+function toggleMinimalistMode() { appState.minimalistMode = !appState.minimalistMode; document.body.classList.toggle('minimalist-mode', appState.minimalistMode); localStorage.setItem('minimalistMode', appState.minimalistMode); document.querySelector('#minimalist-toggle i').className = appState.minimalistMode ? 'fas fa-expand' : 'fas fa-compress'; }
+function showModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+function hideModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+    const section = document.getElementById(`${sectionId}-section`);
+    if (section) {
+        section.classList.add('active');
+        appState.currentSection = sectionId;
+        if (sectionId === 'stats') {
+            updateAllStatsAndCharts();
+            saveSessionTime();
+            updateStudyTimeDisplay();
+        } else if (sectionId === 'achievements') {
+            renderAchievementsPage();
+        } else if (sectionId === 'performance') {
+            updateStats();
+            populatePerformanceTopicSelect();
+            renderPerformanceHistory();
+        } else if (sectionId === 'progress') {
+            updateProgressLists();
+        } else if (sectionId === 'review') {
+            updateFutureReviews();
+        }
+    }
+    window.scrollTo(0, 0);
+}
+
+function updateAllStatsAndCharts() {
+    updateStats();
+    updateStatusIcons();
+    if (appState.currentSection === 'stats') {
+        createCompletionChart();
+        createPerformanceByAreaChart();
+    }
+}
+
+// INICIALIZAÇÃO
+// ---------------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+    if (appState.darkMode) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.querySelector('#theme-toggle i').className = 'fas fa-sun';
+    }
+    document.getElementById('start-date').value = appState.scheduleConfig.startDate;
+    document.getElementById('exam-date').value = appState.scheduleConfig.examDate;
+    document.getElementById('max-topics-day').value = appState.scheduleConfig.maxTopicsPerDay;
+    document.getElementById('perf-date').value = new Date().toISOString().split('T')[0];
+
+    initializeEventListeners();
+    initMotivationalQuote();
+    prepareAllTopics();
+    regenerateAndRenderSchedule();
+    resetPomodoro();
+    startTotalStudyTimer();
+
+    // Inicializar Chatbot Médico
+    medicalChatbot.init();
+
+    // Gamification Init
+    updateHeaderUI();
+    checkAllAchievements({ type: 'load' });
+    renderAchievementsPage();
+
+    showSection('stats');
+});
+
+function initializeEventListeners() {
+    document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+    document.getElementById('minimalist-toggle').addEventListener('click', toggleMinimalistMode);
+    document.getElementById('pomodoro-start').addEventListener('click', startPomodoro);
+    document.getElementById('pomodoro-pause').addEventListener('click', pausePomodoro);
+    document.getElementById('pomodoro-reset').addEventListener('click', resetPomodoro);
+    document.querySelectorAll('.sidebar-menu a[data-section]').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); showSection(link.dataset.section); }); });
+    document.getElementById('reset-progress').addEventListener('click', () => showModal('confirmation-modal'));
+    document.getElementById('confirm-reset').addEventListener('click', () => { localStorage.clear(); location.reload(); });
+    document.getElementById('cancel-reset').addEventListener('click', () => hideModal('confirmation-modal'));
+    document.getElementById('apply-config').addEventListener('click', applyConfigurations);
+    document.getElementById('add-custom-theme-btn').addEventListener('click', addCustomTheme);
+    document.getElementById('save-performance-entry').addEventListener('click', savePerformanceEntry);
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const difficulty = this.dataset.difficulty;
+            if (appState.currentDifficultyTopic) {
+                appState.topicDifficulties[appState.currentDifficultyTopic] = difficulty;
+                localStorage.setItem('topicDifficulties', JSON.stringify(appState.topicDifficulties));
+                saveAndCheck({ type: 'difficulty', topic: appState.currentDifficultyTopic });
+                updateAllStatsAndCharts();
+            }
+            hideModal('difficulty-modal');
+        });
+    });
+}
+
+function initMotivationalQuote() { 
+    // This was removed from the header to make space for gamification, but the function can be kept for future use.
+}
+
+function startTotalStudyTimer() {
+    const STORAGE_KEY = 'totalStudyTime';
+    let totalTime = parseInt(localStorage.getItem(STORAGE_KEY) || '0');
+    const display = document.getElementById('total-study-time');
+
+    function updateDisplay() {
+        const hrs = Math.floor(totalTime / 3600).toString().padStart(2, '0');
+        const mins = Math.floor((totalTime % 3600) / 60).toString().padStart(2, '0');
+        const secs = (totalTime % 60).toString().padStart(2, '0');
+        if (display) display.textContent = `${hrs}:${mins}:${secs}`;
+    }
+
+    updateDisplay();
+
+    setInterval(() => {
+        totalTime++;
+        localStorage.setItem(STORAGE_KEY, totalTime);
+        updateDisplay();
+    }, 1000);
+}
+
+// RESTANTE DAS FUNÇÕES (HELPER, UI, ETC.)
+// ---------------------------------------------------------------------------------
+function getAreaName(area) { const names = { preventiva: "PREV", pediatria: "PED", ginecologia: "GIN", obstetricia: "OBS", clinica: "CLM", cirurgia: "CIR", psiquiatria: "PSI", revisao: "REV", rest: "Off" }; return names[area] || "Geral"; }
+function getAreaIcon(area) { const icons = { preventiva: "fas fa-users", pediatria: "fas fa-baby", ginecologia: "fas fa-venus", obstetricia: "fas fa-baby-carriage", clinica: "fas fa-stethoscope", cirurgia: "fas fa-scalpel", psiquiatria: "fas fa-brain", revisao: "fas fa-star", rest: "fas fa-couch" }; return icons[area] || "fas fa-book-medical"; }
+function formatDate(date) { if (!(date instanceof Date) || isNaN(date)) return ""; const userTimezoneOffset = date.getTimezoneOffset() * 60000; return new Date(date.getTime() + userTimezoneOffset).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }); }
+
+function addTopicEventListeners() {
+    document.querySelectorAll('.topic-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const topic = this.dataset.topic;
+            const isChecked = this.checked;
+
+            // Sincroniza todas as checkboxes para o mesmo tema
+            document.querySelectorAll(`input.topic-checkbox[data-topic="${topic}"]`).forEach(box => {
+                const text = box.closest('.topic-row').querySelector('.topic-text');
+                box.checked = isChecked;
+                if (isChecked) text.classList.add('completed');
+                else text.classList.remove('completed');
+            });
+
+            if (isChecked) {
+                appState.completedTopics[topic] = true;
+                appState.lastReviewDates[topic] = new Date().toISOString();
+                showModal('difficulty-modal');
+                appState.currentDifficultyTopic = topic;
+                addXp(XP_VALUES.completeTopic, 'topic-complete');
+                updateStudyStreak();
+            } else {
+                delete appState.completedTopics[topic];
+                delete appState.lastReviewDates[topic];
+                delete appState.topicDifficulties[topic];
+            }
+
+            localStorage.setItem('completedTopics', JSON.stringify(appState.completedTopics));
+            localStorage.setItem('lastReviewDates', JSON.stringify(appState.lastReviewDates));
+            saveAndCheck({ type: 'completion', topic: topic });
+            updateAllStatsAndCharts();
+            
+            // Save to cloud
+            if (currentUser) {
+                saveUserData();
+            }
+        });
+    });
+}
+
+function generateDynamicWeeks(schedule) {
+    const weeksContainer = document.getElementById('weeks');
+    weeksContainer.innerHTML = '';
+    if (!schedule || schedule.length === 0) {
+        weeksContainer.innerHTML = '<p style="text-align: center; padding: 20px;">Nenhum cronograma para exibir.</p>';
+        return;
+    }
+    const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    schedule.forEach(week => {
+        const weekElement = document.createElement('div');
+        weekElement.className = 'week-section fade-in';
+        const maxThemesInWeek = Math.max(0, ...week.days.map(d => d.isRest ? 0 : (d.themes ? d.themes.length : 0)));
+        let tableHeaderHTML = `<thead><tr><th class="day-col">Dia</th>`;
+        if (maxThemesInWeek > 0) {
+            for (let i = 0; i < maxThemesInWeek; i++) {
+                tableHeaderHTML += `<th class="theme-col">Tema ${i + 1}</th>`;
+            }
+        } else {
+            tableHeaderHTML += `<th class="theme-col">Atividade</th>`;
+        }
+        tableHeaderHTML += `</tr></thead>`;
+
+        let tableBodyHTML = '<tbody>';
+        week.days.forEach(day => {
+            const dayName = dayNames[day.date.getUTCDay()];
+            if (day.isRest) {
+                tableBodyHTML += `<tr class="rest-day"><td colspan="${1 + Math.max(1, maxThemesInWeek)}">${day.themes[0].theme}</td></tr>`;
+            } else {
+                tableBodyHTML += `<tr><td data-label="Dia"><b>${dayName}</b><br>${formatDate(day.date)}</td>`;
+                if (maxThemesInWeek > 0) {
+                    if (day.themes.length === 0) {
+                        tableBodyHTML += `<td colspan="${maxThemesInWeek}"><i>Dia livre</i></td>`;
+                    } else {
+                        for (let i = 0; i < maxThemesInWeek; i++) {
+                            const topic = day.themes ? day.themes[i] : null;
+                            if (topic) {
+                                const topicId = (topic.theme + i).replace(/[^a-zA-Z0-9]/g, "");
+                                tableBodyHTML += `<td data-label="Tema ${i + 1}"><div class="topic-row" data-topic-area="${topic.area}">
+  <input type="checkbox" class="topic-checkbox" id="chk-${topicId}" ${appState.completedTopics[topic.theme] ? "checked" : ""} data-topic="${topic.theme}">
+  <label for="chk-${topicId}" class="topic-text-label">
+    <span class="topic-text ${appState.completedTopics[topic.theme] ? "completed" : ""}">${topic.theme}</span>
+    <div class="area-badge area-${topic.area}">${getAreaName(topic.area)}</div>
+  </label>
+  <button class="btn-ia" onclick="gerarFlashcardIA('${topic.theme}')">🤖 Flashcard IA</button>
+</div>`;
+                            } else {
+                                tableBodyHTML += '<td>-</td>';
+                            }
+                        }
+                    }
+                } else {
+                    tableBodyHTML += `<td><i>Dia livre</i></td>`;
+                }
+                tableBodyHTML += '</tr>';
+            }
+        });
+        tableBodyHTML += '</tbody>';
+        weekElement.innerHTML = `<div class="week-header"><span>${week.title}</span><i class="fas fa-chevron-down"></i></div><div class="week-content"><table class="week-table">${tableHeaderHTML}${tableBodyHTML}</table></div>`;
+        weeksContainer.appendChild(weekElement);
+        weekElement.querySelector('.week-header').addEventListener('click', function () { this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('i').className = this.nextElementSibling.classList.contains('collapsed') ? 'fas fa-chevron-right' : 'fas fa-chevron-down'; });
+    });
+    addTopicEventListeners();
+    updateStatusIcons();
+}
+
+// FUNÇÕES DO FLASHCARD IA (mantida do código original)
+async function gerarFlashcardIA(tema) {
+  // Elementos do modal
+  const modal = document.getElementById('ia-flashcard-modal');
+  const titleElement = document.getElementById('ia-flashcard-title');
+  const contentElement = document.getElementById('ia-resumo');
+  
+  // Configuração inicial
+  titleElement.textContent = tema;
+  contentElement.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="rotating-hourglass">⏳</span>
+      <span>🧠 Gerando seu conteúdo...</span>
+    </div>
+  `;
+  
+  // Mostra o modal
+  showModal('ia-flashcard-modal');
+  
+  // Animação de loading
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .rotating-hourglass {
+      display: inline-block;
+      animation: rotate 1.5s linear infinite;
+    }
+  `;
+  document.head.appendChild(style);
+
+  try {
+    const GEMINI_API_KEY = "AIzaSyDaGaxZj0bLiL1aFM-iFUhxipb9wm4XCaI";
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "contents": [{
+          "parts": [{
+            "text": `Forneça um resumo técnico conciso sobre ${tema} para estudo médico, com até 5 linhas. 
+            Seja direto e use linguagem médica apropriada.`
+          }]
+        }],
+        "generationConfig": {
+          "maxOutputTokens": 300,
+          "temperature": 0.5
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro na API: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Extração do texto da resposta do Gemini
+    const resposta = data?.candidates?.[0]?.content?.parts?.[0]?.text || 
+                    "Não foi possível gerar o conteúdo.";
+    
+    // Limpeza do conteúdo
+    const respostaLimpa = resposta.replace(/^\s*[\r\n]+|\s*[\r\n]+\s*$/g, '');
+    
+    // Exibe o resultado
+    contentElement.textContent = respostaLimpa || "Resposta vazia da IA.";
+
+  } catch (err) {
+    console.error("Erro na chamada do Gemini:", err);
+    contentElement.textContent = `Erro: ${err.message || 'Tente novamente mais tarde.'}`;
+    
+    // Log detalhado para debug
+    if (err.response) {
+      err.response.json().then(body => console.error("Detalhes do erro:", body));
+    }
+  } finally {
+    // Remove a animação
+    if (document.head.contains(style)) {
+      document.head.removeChild(style);
+    }
+  }
+}
+
+
+// FUNÇÕES DO POMODORO
+// ---------------------------------------------------------------------------------
+function startPomodoro() { if (!appState.pomodoroRunning) { appState.pomodoroRunning = true; appState.pomodoroInterval = setInterval(updatePomodoro, 1000); document.getElementById('pomodoro-start').disabled = true; document.getElementById('pomodoro-pause').disabled = false; } }
+function pausePomodoro() { if (appState.pomodoroRunning) { clearInterval(appState.pomodoroInterval); appState.pomodoroRunning = false; document.getElementById('pomodoro-start').disabled = false; document.getElementById('pomodoro-pause').disabled = true; } }
+function resetPomodoro() { const isFocus = appState.currentPomodoroType === 'focus'; pausePomodoro(); const time = parseInt(document.getElementById(isFocus ? 'focus-time' : 'break-time').value) || (isFocus ? 25 : 5); appState.pomodoroTime = time * 60; updatePomodoroDisplay(); document.getElementById('pomodoro-start').disabled = false; document.getElementById('pomodoro-pause').disabled = true; }
+function updatePomodoro() { appState.pomodoroTime--; updatePomodoroDisplay(); if (appState.pomodoroTime < 0) { if (appState.currentPomodoroType === 'focus') { appState.userProfile.completedPomodoros++; addXp(XP_VALUES.pomodoroComplete, 'pomodoro'); appState.currentPomodoroType = 'break'; alert('Foco finalizado! Hora da pausa.'); } else { appState.currentPomodoroType = 'focus'; alert('Pausa finalizada! Hora de focar.'); } saveAndCheck(); resetPomodoro(); } }
+function updatePomodoroDisplay() { const minutes = Math.floor(appState.pomodoroTime / 60); const seconds = appState.pomodoroTime % 60; document.getElementById('pomodoro-display').textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`; }
+
+// FUNÇÕES DE ESTATÍSTICAS E GRÁFICOS
+// ---------------------------------------------------------------------------------
+function updateStats() { prepareAllTopics(); const totalTopics = appState.allTopicsFlat.filter(t => t.area !== 'rest' && t.area !== 'revisao').length; const completedCount = Object.keys(appState.completedTopics).length; const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0; document.getElementById('completed-count').textContent = completedCount; document.getElementById('progress-fill').style.width = `${percentage}%`; document.getElementById('progress-percentage').textContent = `${percentage}% de ${totalTopics} temas`; updateCountdown(); updateAverageDifficulty(); }
+function updateCountdown() { const examDate = new Date(`${appState.scheduleConfig.examDate}T12:00:00Z`); const today = new Date(); const diffTime = examDate - today; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); document.getElementById('days-left').textContent = diffDays > 0 ? diffDays : 0; }
+function updateAverageDifficulty() { const difficulties = Object.values(appState.topicDifficulties); if (difficulties.length === 0) { document.getElementById('avg-difficulty').textContent = '-'; return; } const difficultyMap = { easy: 1, medium: 2, hard: 3 }; const avg = difficulties.reduce((sum, diff) => sum + difficultyMap[diff], 0) / difficulties.length; document.getElementById('avg-difficulty').textContent = avg < 1.5 ? 'Fácil' : avg < 2.5 ? 'Médio' : 'Difícil'; }
+function updateStatusIcons() { document.querySelectorAll('.topic-checkbox').forEach(checkbox => { const topic = checkbox.dataset.topic; if (appState.completedTopics[topic]) { checkbox.checked = true; checkbox.closest('.topic-row').querySelector('.topic-text').classList.add('completed'); } else { checkbox.checked = false; checkbox.closest('.topic-row').querySelector('.topic-text').classList.remove('completed'); } }); }
+
+function createCompletionChart() { const ctx = document.getElementById('graficoPorMateria').getContext('2d'); if (!ctx || !document.getElementById('stats-section').classList.contains('active')) return; if (appState.charts.completionBySubject) appState.charts.completionBySubject.destroy(); const data = {}; const areas = ['preventiva', 'pediatria', 'ginecologia', 'obstetricia', 'clinica', 'cirurgia', 'psiquiatria', 'revisao']; areas.forEach(area => data[area] = { total: 0, feitos: 0, cor: getComputedStyle(document.documentElement).getPropertyValue(`--area-${area}`).trim() || '#607D8B', nome: getAreaName(area) }); appState.allTopicsFlat.forEach(topic => { if (data[topic.area]) { data[topic.area].total++; if (appState.completedTopics[topic.theme]) data[topic.area].feitos++; } }); const labels = [], porcentagens = [], cores = []; for (let key in data) { if (data[key].total > 0) { labels.push(data[key].nome); porcentagens.push(Math.round((data[key].feitos / data[key].total) * 100)); cores.push(data[key].cor); } } const isDarkMode = appState.darkMode; const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'; const tickColor = isDarkMode ? '#f5f5f5' : '#666'; appState.charts.completionBySubject = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: '% Concluído', data: porcentagens, backgroundColor: cores, borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { color: tickColor }, grid: { display: false } }, x: { beginAtZero: true, max: 100, ticks: { color: tickColor, callback: val => `${val}%` }, grid: { color: gridColor } } } } }); }
+
+function createPerformanceByAreaChart() { const ctx = document.getElementById('graficoDesempenhoPorArea').getContext('2d'); if (!ctx || !document.getElementById('stats-section').classList.contains('active')) return; if (appState.charts.performanceByArea) appState.charts.performanceByArea.destroy(); const perfData = {}; const areas = ['preventiva', 'pediatria', 'ginecologia', 'obstetricia', 'clinica', 'cirurgia', 'psiquiatria', 'revisao']; areas.forEach(area => perfData[area] = { attempted: 0, correct: 0, cor: getComputedStyle(document.documentElement).getPropertyValue(`--area-${area}`).trim() || '#607D8B', nome: getAreaName(area) }); appState.performanceLog.forEach(entry => { const topicDetails = appState.allTopicsFlat.find(t => t.theme === entry.topic); if (topicDetails && perfData[topicDetails.area]) { perfData[topicDetails.area].attempted += entry.attempted; perfData[topicDetails.area].correct += entry.correct; } }); const labels = [], porcentagens = [], cores = []; for (let key in perfData) { if (perfData[key].attempted > 0) { labels.push(perfData[key].nome); porcentagens.push(Math.round((perfData[key].correct / perfData[key].attempted) * 100)); cores.push(perfData[key].cor); } } if (labels.length === 0) { ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.font = "16px Roboto"; ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color'); ctx.textAlign = "center"; ctx.fillText("Nenhum dado de desempenho para exibir.", ctx.canvas.width / 2, 50); return; } const isDarkMode = appState.darkMode; const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'; const tickColor = isDarkMode ? '#f5f5f5' : '#666'; appState.charts.performanceByArea = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: '% de Acerto', data: porcentagens, backgroundColor: cores, borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100, ticks: { color: tickColor, callback: val => `${val}%` }, grid: { color: gridColor } }, x: { ticks: { color: tickColor }, grid: { display: false } } } } }); }
+
+// FUNÇÕES DE PROGRESSO E REVISÃO
+// ---------------------------------------------------------------------------------
+function updateProgressLists() { const container = document.getElementById('progress-lists'); if (!container) return; const areas = {}; prepareAllTopics(); for (const topicName in appState.completedTopics) { const topicDetails = appState.allTopicsFlat.find(t => t.theme === topicName); if (topicDetails) { const area = topicDetails.area; if (!areas[area]) { areas[area] = { name: getAreaName(area), icon: getAreaIcon(area), topics: [] }; } const completedDate = new Date(appState.lastReviewDates[topicName]); const daysPassed = Math.floor((new Date() - completedDate) / (1000 * 60 * 60 * 24)); areas[area].topics.push({ name: topicName, daysPassed: daysPassed }); } } let html = ''; for (const areaId in areas) { const area = areas[areaId]; if (area.topics.length === 0) continue; area.topics.sort((a, b) => a.daysPassed - b.daysPassed); const topicsHtml = area.topics.map(topic => { let urgencyClass = topic.daysPassed > 14 ? 'danger' : topic.daysPassed > 7 ? 'warning' : ''; return `<li class="topic-item"><span>${topic.name}</span> <span class="days-badge ${urgencyClass}">${topic.daysPassed} dias</span></li>`; }).join(''); html += `<div class="progress-list"><h4><i class="${area.icon}"></i> ${area.name}</h4><ul>${topicsHtml}</ul></div>`; } container.innerHTML = html || '<p style="text-align: center; padding: 20px;">Nenhum tema concluído ainda.</p>'; }
+
+function updateFutureReviews() { const container = document.getElementById('future-reviews-container'); if (!container) return; const now = new Date(); const urgentReviews = [], soonReviews = [], scheduledReviews = []; let pendingCount = 0; if (Object.keys(appState.completedTopics).length === 0) { container.innerHTML = '<p style="text-align: center; padding: 20px;">Nenhum tema concluído para gerar revisões.</p>'; document.getElementById('reviews-pending').textContent = '0'; return; } for (const topic in appState.completedTopics) { if (!appState.lastReviewDates[topic]) continue; const lastReview = new Date(appState.lastReviewDates[topic]); const difficulty = appState.topicDifficulties[topic] || 'medium'; const reviewIntervalDays = { easy: 15, medium: 7, hard: 3 }[difficulty] || 7; const daysUntilReview = reviewIntervalDays - Math.floor((now - lastReview) / (1000 * 60 * 60 * 24)); const reviewItem = { topic, difficulty, daysUntilReview, lastReview: formatDate(lastReview) }; if (daysUntilReview <= 0) { reviewItem.status = `Atrasada ${Math.abs(daysUntilReview)}d`; reviewItem.statusClass = 'urgent'; urgentReviews.push(reviewItem); pendingCount++; } else if (daysUntilReview <= 3) { reviewItem.status = `Em ${daysUntilReview}d`; reviewItem.statusClass = 'soon'; soonReviews.push(reviewItem); } else { reviewItem.status = `Em ${daysUntilReview}d`; scheduledReviews.push(reviewItem); } } document.getElementById('reviews-pending').textContent = pendingCount; const renderReviewGroup = (title, icon, reviews) => { if (reviews.length === 0) return ''; return `<div class="review-group"><h4><i class="${icon}"></i> ${title} (${reviews.length})</h4>${reviews.map(review => `<div class="review-item"><div class="review-info"><strong>${review.topic}</strong><div>Última revisão: ${review.lastReview}</div></div><div class="review-actions"><span class="review-due ${review.statusClass}">${review.status}</span><button class="btn" onclick="markAsReviewed('${review.topic.replace(/'/g, "\\'")}')"><i class="fas fa-check"></i> Revisado</button></div></div>`).join('')}</div>`; }; container.innerHTML = `${renderReviewGroup('Revisões Atrasadas', 'fas fa-exclamation-triangle', urgentReviews)}${renderReviewGroup('Revisões Próximas', 'fas fa-hourglass-half', soonReviews)}${renderReviewGroup('Revisões Programadas', 'fas fa-calendar-check', scheduledReviews)}` || '<p style="text-align: center; padding: 20px;">Nenhuma revisão programada.</p>'; }
+
+// FUNÇÕES DE PERFORMANCE E CONFIGURAÇÃO
+// ---------------------------------------------------------------------------------
+function populatePerformanceTopicSelect() { const select = document.getElementById('perf-topic-select'); if (!select || select.options.length > 1) return; const areas = {}; appState.allTopicsFlat.forEach(topic => { if (topic.area === 'rest') return; if (!areas[topic.area]) { areas[topic.area] = []; } areas[topic.area].push(topic.theme); }); select.innerHTML = '<option value="">Selecione um tema...</option>'; for (const areaId in areas) { const optgroup = document.createElement('optgroup'); optgroup.label = getAreaName(areaId).toUpperCase(); areas[areaId].sort().forEach(themeName => { const option = document.createElement('option'); option.value = themeName; option.textContent = themeName; optgroup.appendChild(option); }); select.appendChild(optgroup); } }
+
+function savePerformanceEntry() { const date = document.getElementById('perf-date').value; const topic = document.getElementById('perf-topic-select').value; const attempted = parseInt(document.getElementById('perf-questions-attempted').value); const correct = parseInt(document.getElementById('perf-questions-correct').value); if (!date || !topic || isNaN(attempted) || isNaN(correct)) { alert('Preencha todos os campos corretamente.'); return; } if (correct > attempted || attempted <= 0) { alert('Valores inválidos.'); return; } const newEntry = { id: Date.now(), date, topic, attempted, correct }; appState.performanceLog.push(newEntry); localStorage.setItem('performanceLog', JSON.stringify(appState.performanceLog)); renderPerformanceHistory(); addXp(XP_VALUES.performanceEntry, 'performance'); updateStudyStreak(); saveAndCheck({ type: 'simulado' }); document.getElementById('perf-topic-select').value = ""; document.getElementById('perf-questions-attempted').value = ""; document.getElementById('perf-questions-correct').value = ""; alert('Registro salvo!'); }
+
+function renderPerformanceHistory() { const container = document.getElementById('performance-history-container'); if (!container) return; if (appState.performanceLog.length === 0) { container.innerHTML = '<p class="config-hint" style="text-align: center; padding: 20px;">Nenhum registro de desempenho.</p>'; return; } let tableHTML = `<table class="performance-table"><thead><tr><th>Data</th><th>Tema</th><th>Área</th><th>Questões</th><th>Acertos</th><th>%</th><th>Ações</th></tr></thead><tbody>`; const sortedLog = [...appState.performanceLog].sort((a, b) => new Date(b.date) - new Date(a.date)); sortedLog.forEach(entry => { const topicDetails = appState.allTopicsFlat.find(t => t.theme === entry.topic); const area = topicDetails ? topicDetails.area : 'N/A'; const percentage = Math.round((entry.correct / entry.attempted) * 100); let percClass = 'medium'; if (percentage >= 80) percClass = 'good'; else if (percentage < 60) percClass = 'bad'; tableHTML += `<tr><td>${formatDate(new Date(entry.date))}</td><td>${entry.topic}</td><td><span class="area-badge area-${area}">${getAreaName(area)}</span></td><td>${entry.attempted}</td><td>${entry.correct}</td><td class="percentage-col ${percClass}">${percentage}%</td><td><button class="btn btn-danger delete-perf-entry" data-id="${entry.id}"><i class="fas fa-trash"></i></button></td></tr>`; }); tableHTML += '</tbody></table>'; container.innerHTML = tableHTML; document.querySelectorAll('.delete-perf-entry').forEach(btn => { btn.addEventListener('click', function () { const entryId = parseInt(this.dataset.id); deletePerformanceEntry(entryId); }); }); }
+
+function deletePerformanceEntry(id) { if (!confirm('Tem certeza?')) return; appState.performanceLog = appState.performanceLog.filter(entry => entry.id !== id); localStorage.setItem('performanceLog', JSON.stringify(appState.performanceLog)); renderPerformanceHistory(); if (appState.currentSection === 'stats') createPerformanceByAreaChart(); }
+
+function applyConfigurations() { const startDate = document.getElementById('start-date').value; const examDate = document.getElementById('exam-date').value; const maxTopicsPerDay = parseInt(document.getElementById('max-topics-day').value); if (!startDate || !examDate || isNaN(maxTopicsPerDay)) { alert('Preencha tudo.'); return; } if (new Date(startDate) >= new Date(examDate)) { alert('Data de início deve ser anterior.'); return; } appState.scheduleConfig = { startDate, examDate, maxTopicsPerDay }; localStorage.setItem('scheduleConfig', JSON.stringify(appState.scheduleConfig)); regenerateAndRenderSchedule(); alert('Cronograma atualizado!'); showSection('weeks'); }
+
+function addCustomTheme() { const nameInput = document.getElementById('custom-theme-name'); const areaSelect = document.getElementById('custom-theme-area'); const themeName = nameInput.value.trim(); const themeArea = areaSelect.value; if (!themeName) { alert('Digite o nome.'); return; } if ([...originalScheduleData, ...appState.customThemes].some(t => t.theme.toLowerCase() === themeName.toLowerCase())) { alert('Tema já existe.'); return; } const newTheme = { theme: themeName, area: themeArea }; appState.customThemes.push(newTheme); localStorage.setItem('customThemes', JSON.stringify(appState.customThemes)); nameInput.value = ""; renderCustomThemesList(); }
+
+function removeCustomTheme(themeNameToRemove) { appState.customThemes = appState.customThemes.filter(theme => theme.theme !== themeNameToRemove); localStorage.setItem('customThemes', JSON.stringify(appState.customThemes)); renderCustomThemesList(); }
+
+function renderCustomThemesList() { const listContainer = document.getElementById('custom-themes-list'); listContainer.innerHTML = appState.customThemes.length === 0 ? '<p class="config-hint">Nenhum tema personalizado.</p>' : '<h5>Seus Temas:</h5>'; appState.customThemes.forEach(theme => { const themeElement = document.createElement('div'); themeElement.className = 'custom-theme-item'; themeElement.innerHTML = `<span><span class="area-badge area-${theme.area}">${getAreaName(theme.area)}</span> ${theme.theme}</span> <button class="btn btn-danger remove-custom-theme-btn" data-theme-name="${theme.theme}"><i class="fas fa-times"></i></button>`; listContainer.appendChild(themeElement); }); document.querySelectorAll('.remove-custom-theme-btn').forEach(button => { button.addEventListener('click', function () { removeCustomTheme(this.dataset.themeName); }); }); }
+
+// UTILITÁRIOS E FUNÇÕES FINAIS
+// ---------------------------------------------------------------------------------
+window.markAsReviewed = function (topic) { appState.lastReviewDates[topic] = new Date().toISOString(); localStorage.setItem('lastReviewDates', JSON.stringify(appState.lastReviewDates)); if (appState.currentSection === 'review') updateFutureReviews(); addXp(5); updateStudyStreak(); saveAndCheck({ type: 'review', topic: topic }); };
+
+let sessionStartTime = Date.now();
+
+function saveSessionTime() {
+    const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+    const stored = parseInt(localStorage.getItem('totalStudyTime') || '0');
+    localStorage.setItem('totalStudyTime', stored + elapsed);
+    sessionStartTime = Date.now();
+}
+
+function formatStudyTime(seconds) {
+    const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${hrs}:${mins}:${secs}`;
+}
+
+function updateStudyTimeDisplay() {
+    const display = document.getElementById('study-time-display');
+    const totalTime = parseInt(localStorage.getItem('totalStudyTime') || '0');
+    if (display) display.textContent = `⏱️ Tempo de estudo ${formatStudyTime(totalTime)}`;
+}
+
+function toggleResposta() {
+  const resposta = document.getElementById('ia-resposta');
+  resposta.style.display = resposta.style.display === "none" ? "block" : "none";
+}
+
+// INICIALIZAÇÃO DA APLICAÇÃO MODIFICADA PARA AUTENTICAÇÃO
+// ---------------------------------------------------------------------------------
+function initializeApp() {
+    loadAppState();
+    updateAllDisplays();
+    setupEventListeners();
+    
+    // Configurar data de hoje para registro de desempenho
+    const today = new Date().toISOString().split('T')[0];
+    const perfDateInput = document.getElementById('perf-date');
+    if (perfDateInput) {
+        perfDateInput.value = today;
+    }
+    
+    // Inicializar chatbot
+    if (typeof medicalChatbot !== 'undefined') {
+        medicalChatbot.init();
+    }
+    
+    // Gerar cronograma
+    generateSchedule();
+}
+
+// Modificar as funções de salvamento para integrar com Supabase
+const originalSaveAppState = saveAppState;
+saveAppState = function() {
+    originalSaveAppState();
+    if (currentUser) {
+        saveUserData();
+    }
+};
+
+</script>
 </body>
 </html>
