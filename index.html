@@ -1120,10 +1120,17 @@ async function handleAuth(event) {
         spinner.style.display = 'none';
     }
 }
-
-async function handleGoogleLogin() {
+async function loginWithGoogle() {
     try {
-        const { error } = await supabase.auth.signInWithOAuth({
+        // Para login com Google funcionar, você precisa configurar um URL público
+        // no painel do Supabase. Como estamos usando localhost, vamos desabilitar
+        // temporariamente e mostrar uma mensagem explicativa.
+        
+        showMessage('Login com Google requer configuração adicional. Para habilitar:\n\n1. Acesse o painel do Supabase\n2. Vá em Authentication → Providers\n3. Configure o Google Provider\n4. Adicione um domínio público válido\n\nPor enquanto, use login com email/senha.', 'error');
+        
+        // Código original comentado:
+        /*
+        const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: window.location.origin
@@ -1131,6 +1138,7 @@ async function handleGoogleLogin() {
         });
         
         if (error) throw error;
+        */
         
     } catch (error) {
         console.error('Google login error:', error);
@@ -1140,8 +1148,51 @@ async function handleGoogleLogin() {
 
 async function logout() {
     try {
+        if (currentUser) {
+            await saveUserData(); // Salva os últimos dados antes de deslogar
+        }
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
+        
+        // Limpar o estado local e redirecionar para a tela de login
+        currentUser = null;
+        appState = { // Resetar appState para o estado inicial
+            sidebarOpen: false,
+            darkMode: false,
+            minimalistMode: false,
+            currentSection: 'schedule',
+            scheduleConfig: { startDate: '2024-12-01', examDate: '2025-06-15', studyWeeks: 24, maxTopicsPerDay: 4 },
+            completedTopics: {},
+            topicDifficulties: {},
+            lastReviewDates: {},
+            userProfile: { xp: 0, level: 0, studyStreak: 0, lastStudyDate: null, completedPomodoros: 0, unlockedAchievements: {} },
+            performanceLog: [],
+            customThemes: [],
+            allTopicsFlat: [],
+            scheduleData: [],
+            charts: {},
+            pomodoro: { timer: null, duration: 25 * 60, remaining: 25 * 60, isRunning: false, isBreak: false, cycles: 0, completedSessions: 0 },
+            sessionStartTime: null,
+            totalStudyTime: 0,
+            currentDifficultyTopic: null,
+            chatHistory: [],
+            chatInput: '',
+            chatLoading: false,
+            chatResponse: '',
+            chatError: '',
+            chatOpen: false,
+            chatMessages: []
+        };
+        localStorage.clear(); // Limpa todo o localStorage
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('main-app').style.display = 'none';
+        document.getElementById('user-email-display').textContent = '';
+        document.getElementById('user-xp-display').textContent = '';
+        document.getElementById('user-level-display').textContent = '';
+        document.getElementById('user-study-streak-display').textContent = '';
+        document.getElementById('user-pomodoros-display').textContent = '';
+        updateAllDisplays(); // Atualiza a UI para refletir o estado limpo
+
     } catch (error) {
         console.error('Logout error:', error);
         alert('Erro ao fazer logout. Tente novamente.');
@@ -1198,9 +1249,18 @@ function getErrorMessage(error) {
 
 // Data Synchronization Functions
 async function saveUserData() {
-    if (!currentUser) return;
+    if (!currentUser) {
+        console.log('No current user, skipping save');
+        return;
+    }
     
     try {
+        console.log('Preparing user data for save:', {
+            completedTopics: appState.completedTopics,
+            lastReviewDates: appState.lastReviewDates,
+            userProfile: appState.userProfile
+        });
+        
         const userData = {
             user_id: currentUser.id,
             completed_topics: appState.completedTopics,
@@ -1216,16 +1276,22 @@ async function saveUserData() {
             updated_at: new Date().toISOString()
         };
         
+        console.log('Sending data to Supabase:', userData);
+        
         const { error } = await supabase
             .from('user_progress')
             .upsert(userData);
         
-        if (error) throw error;
+        if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+        }
         
-        console.log('User data saved successfully');
+        console.log('User data saved successfully to Supabase');
         
     } catch (error) {
         console.error('Error saving user data:', error);
+        alert('Erro ao salvar dados na nuvem: ' + error.message);
     }
 }
 
@@ -1805,7 +1871,7 @@ function saveUserProfile() {
 }
 
 function saveAndCheck(eventData = null) {
-    saveUserProfile();
+    // saveUserProfile(); // Removido, pois saveUserData já cuida disso
     checkAllAchievements(eventData);
 }
 
@@ -1981,9 +2047,9 @@ function addTopicEventListeners() {
             if (isChecked) {
                 appState.completedTopics[topic] = true;
                 appState.lastReviewDates[topic] = new Date().toISOString();
-                showModal('difficulty-modal');
+                showModal("difficulty-modal");
                 appState.currentDifficultyTopic = topic;
-                addXp(XP_VALUES.completeTopic, 'topic-complete');
+                addXp(XP_VALUES.completeTopic, "topic-complete");
                 updateStudyStreak();
             } else {
                 delete appState.completedTopics[topic];
@@ -1991,13 +2057,13 @@ function addTopicEventListeners() {
                 delete appState.topicDifficulties[topic];
             }
 
-            localStorage.setItem('completedTopics', JSON.stringify(appState.completedTopics));
-            localStorage.setItem('lastReviewDates', JSON.stringify(appState.lastReviewDates));
-            saveAndCheck({ type: 'completion', topic: topic });
+            // saveAndCheck({ type: "completion", topic: topic }); // Já chamado por saveUserData
+            saveAndCheck({ type: "completion", topic: topic });
             updateAllStatsAndCharts();
             
             // Save to cloud
             if (currentUser) {
+                console.log("Saving user data after topic completion:", appState.completedTopics, appState.lastReviewDates);
                 saveUserData();
             }
         });
