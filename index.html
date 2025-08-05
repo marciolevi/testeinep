@@ -4172,8 +4172,9 @@ h6 { font-size: 1rem; }
             function formatTime(totalSeconds) {
                 const hours = Math.floor(totalSeconds / 3600);
                 const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-                return `⏱️ ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                // A linha abaixo que calcula os segundos foi removida.
+                // const seconds = totalSeconds % 60; 
+                return `Tempo de estudo⏱️ ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
             }
 
             // Atualiza a UI imediatamente com o tempo carregado
