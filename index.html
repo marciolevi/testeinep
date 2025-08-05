@@ -4302,7 +4302,7 @@ Você está integrado ao sistema de estudos cronogramados por áreas semanais. R
                                 const topic = day.themes ? day.themes[i] : null;
                                 if (topic) {
                                     const topicId = (topic.theme + i).replace(/[^a-zA-Z0-9]/g, "");
-                                    tableBodyHTML += `<td><div class="topic-row" data-topic-area="${topic.area}"><input type="checkbox" class="topic-checkbox" id="chk-${topicId}" ${appState.completedTopics[topic.theme] ? "checked" : ""} data-topic="${topic.theme}"><label for="chk-${topicId}" class="topic-text-label"><span class="topic-text ${appState.completedTopics[topic.theme] ? "completed" : ""}">${topic.theme}</span><div class="area-badge area-${topic.area}">${getAreaName(topic.area)}</div></label><button class="btn-ia" onclick="gerarFlashcardIA('${topic.theme}')">🤖 Flashcard IA</button></div></td>`;
+                                    tableBodyHTML += `<td><div class="topic-row" data-topic-area="${topic.area}"><input type="checkbox" class="topic-checkbox" id="chk-${topicId}" ${appState.completedTopics[topic.theme] ? "checked" : ""} data-topic="${topic.theme}"><label for="chk-${topicId}" class="topic-text-label"><span class="topic-text ${appState.completedTopics[topic.theme] ? "completed" : ""}">${topic.theme}</span><div class="area-badge area-${topic.area}">${getAreaName(topic.area)}</div></label><button class="btn-ia" onclick="gerarFlashcardIA('${topic.theme}')">🤖 Resumo IA</button></div></td>`;
                                 } else { tableBodyHTML += '<td>-</td>'; }
                             }}
                         } else { tableBodyHTML += `<td><i>Dia livre</i></td>`; }
